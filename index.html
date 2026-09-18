@@ -68,25 +68,58 @@
   .anim-in .chart .aline{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s var(--ease) .1s forwards}
   .anim-in .chart .afill{animation:fadein .9s ease .3s both}
 
-  /* layout */
-  .app{display:grid;grid-template-columns:78px 1fr;min-height:100%}
-  .rail{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0}
-  .rail-logo{width:42px;height:42px;border-radius:8px;background:linear-gradient(150deg,var(--accent),var(--accent-4));
-    display:grid;place-items:center;color:#fff;box-shadow:0 6px 18px rgba(59,83,214,.4);margin-bottom:12px}
-  .rail-logo svg{width:22px;height:22px}
-  .rail-nav{display:flex;flex-direction:column;gap:6px;flex:1}
-  .rbtn{width:44px;height:44px;border-radius:8px;border:none;background:transparent;color:var(--ink-soft);
-    display:grid;place-items:center;transition:background .18s,color .18s,transform .18s;position:relative}
-  .rbtn svg{width:21px;height:21px;transition:transform .18s var(--ease)}
-  .rbtn:hover{background:var(--surface);color:var(--ink)} .rbtn:hover svg{transform:scale(1.12)}
-  .rbtn.on{background:var(--ink);color:var(--canvas)}
-  :root[data-theme="dark"] .rbtn.on{background:var(--accent);color:#fff}
-  .rbtn .tip{position:absolute;inset-inline-start:54px;top:50%;transform:translateY(-50%) translateX(-4px);background:var(--ink);
-    color:var(--canvas);padding:5px 10px;border-radius:5px;font-size:12px;font-weight:600;white-space:nowrap;opacity:0;
-    pointer-events:none;transition:.15s;z-index:30}
-  [dir=rtl] .rbtn .tip{inset-inline-start:auto;inset-inline-end:54px;transform:translateY(-50%) translateX(4px)}
-  .rbtn:hover .tip{opacity:1;transform:translateY(-50%)}
-  .rail-foot{display:flex;flex-direction:column;gap:6px;align-items:center}
+  /* layout: labeled sidebar + main */
+  .app{display:grid;grid-template-columns:232px 1fr;min-height:100%}
+  .side{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;gap:4px;padding:16px 12px 14px;background:var(--surface);border-inline-end:1px solid var(--line)}
+  .side-brand{display:flex;align-items:center;gap:10px;padding:4px 6px 12px}
+  .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(150deg,var(--accent),var(--accent-4));display:grid;place-items:center;color:#fff;flex:0 0 auto;box-shadow:0 6px 16px rgba(59,83,214,.32)}
+  .logo svg{width:19px;height:19px}
+  .side-brand .bn{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.1}
+  .side-brand .bs{font-size:11.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;margin-top:2px}
+  .side-new{justify-content:center;margin:0 0 10px}
+  .side-nav{display:flex;flex-direction:column;gap:2px;flex:1}
+  .sbtn{display:flex;align-items:center;gap:11px;width:100%;border:none;background:transparent;color:var(--ink-soft);padding:10px 11px;border-radius:7px;font-weight:600;font-size:13.5px;font-family:var(--disp);text-align:start;transition:background .15s,color .15s}
+  .sbtn svg{width:19px;height:19px;flex:0 0 auto}
+  .sbtn:hover{background:var(--surface-2);color:var(--ink)}
+  .sbtn.on{background:var(--accent-soft);color:var(--accent-4)}
+  .sbtn kbd{margin-inline-start:auto;font-size:10.5px;font-weight:700;background:var(--surface-2);border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;color:var(--ink-faint);font-family:var(--disp)}
+  .side-foot{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--line);padding-top:10px}
+  .side-chip{display:flex;align-items:center;gap:8px;border:none;background:transparent;color:var(--ink-faint);font-size:11.5px;padding:7px 11px;border-radius:7px;text-align:start;font-family:var(--font);cursor:pointer;width:100%}
+  .side-chip svg{width:14px;height:14px;flex:0 0 auto} .side-chip:hover{background:var(--surface-2)} .side-chip.warn{color:var(--warn)}
+  .side-row{display:flex;gap:8px;align-items:center;padding:6px 2px 0}
+  .side-row .lang-toggle{flex:1} .side-row .lang-toggle button{flex:1}
+  .subtabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:3px;margin:-6px 0 18px;width:max-content;max-width:100%;overflow-x:auto}
+  .subtabs button{border:none;background:transparent;padding:8px 14px;border-radius:6px;font-weight:600;font-size:13px;color:var(--ink-soft);font-family:var(--disp);white-space:nowrap;transition:.15s}
+  .subtabs button.on{background:var(--ink);color:var(--canvas)}
+  :root[data-theme="dark"] .subtabs button.on{background:var(--accent);color:#fff}
+  .fab{display:none}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding-bottom:8px}
+  .qbtn{display:flex;align-items:center;gap:10px;border:1px solid var(--line-2);background:var(--surface-2);border-radius:8px;padding:12px 13px;font-weight:600;font-size:13px;color:var(--ink);font-family:var(--disp);text-align:start;transition:.15s}
+  .qbtn svg{width:18px;height:18px;color:var(--accent);flex:0 0 auto} .qbtn:hover,.qbtn:focus-visible{border-color:var(--accent);background:var(--accent-soft)}
+  .qa{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px}
+  .qab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface);border-radius:8px;padding:9px 13px;font-weight:600;font-size:13px;color:var(--ink);font-family:var(--disp);transition:.15s;white-space:nowrap}
+  .qab svg{width:16px;height:16px;color:var(--accent)} .qab:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .att .ai,.sec .ai{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto;background:var(--surface-2)} .att .ai svg,.sec .ai svg{width:16px;height:16px}
+  .att.neg .ai{background:var(--neg-soft);color:var(--neg)} .att.warn .ai{background:var(--warn-soft);color:var(--warn)} .att.acc .ai{background:var(--accent-soft);color:var(--accent-4)}
+  .lrow>svg:last-child{width:16px;height:16px;color:var(--ink-faint);flex:0 0 auto;margin-inline-start:auto} [dir=rtl] .lrow>svg:last-child{transform:scaleX(-1)}
+  .allclear{display:flex;align-items:center;gap:10px;padding:16px 12px;color:var(--pos);font-weight:600;font-size:13.5px} .allclear svg{width:18px;height:18px;flex:0 0 auto}
+  .gs .gsbar{height:6px;background:var(--surface-3);border-radius:20px;margin:8px 18px 4px;overflow:hidden} .gs .gsbar i{display:block;height:100%;background:var(--accent);transition:width .7s var(--ease)}
+  .gsrow .gsc{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:0 0 auto;color:#fff} .gsrow .gsc svg{width:12px;height:12px}
+  .gsrow.done .gsc{background:var(--pos);border-color:var(--pos)} .gsrow.done{cursor:default} .gsrow.done .t{color:var(--ink-faint);text-decoration:line-through}
+  .gsrow .t{font-weight:600;font-size:13.5px}
+  .sgrid{columns:2;column-gap:15px} .sgrid .sec{break-inside:avoid;margin-bottom:15px;display:inline-block;width:100%;vertical-align:top}
+  .attgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .qa,.subtabs,.topcluster .seg{scrollbar-width:none} .qa::-webkit-scrollbar,.subtabs::-webkit-scrollbar,.topcluster .seg::-webkit-scrollbar{display:none}
+  .sec .secb{padding:12px 18px 18px} .sec .secf{display:flex;gap:8px;padding:6px 12px 14px}
+  .lbl2{font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+  .kv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13px} .kv:first-of-type{border-top:none}
+  .kv .k{color:var(--ink-soft);font-weight:500} .kv .v{font-weight:600} .kv .v.warnc{color:var(--warn)}
+  kbd{font-size:11px;font-weight:700;background:var(--surface-2);border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;font-family:var(--disp)}
+  .dotc{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+  th.sortable{cursor:pointer;user-select:none} th.sortable:hover{color:var(--ink)} th.sortable svg{width:12px;height:12px;vertical-align:-2px;margin-inline-start:4px} th.sortable.on{color:var(--accent-4)}
+  tr.rowlink{cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  tr[role=button]:focus-visible{outline-offset:-2px}
 
   .main{min-width:0;padding:22px 26px 44px;max-width:1520px}
   .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
@@ -285,29 +318,36 @@
   .pal-empty{padding:22px;text-align:center;color:var(--ink-faint);font-size:13px}
   .toast{position:fixed;inset-block-end:24px;inset-inline:0;margin-inline:auto;width:max-content;max-width:90%;background:var(--ink);color:var(--canvas);padding:12px 20px;border-radius:8px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);z-index:80;opacity:0;transform:translateY(12px);transition:.3s var(--ease);pointer-events:none;font-family:var(--disp)}
   .toast.show{opacity:1;transform:translateY(0)}
-  .banner{background:var(--warn-soft);color:var(--warn);border-radius:7px;padding:11px 15px;font-size:12.5px;font-weight:500;margin-bottom:16px;display:flex;gap:9px;align-items:center}
+  .banner{background:var(--surface);color:var(--ink-soft);border:1px solid var(--line-2);border-radius:7px;padding:9px 13px;font-size:12.5px;font-weight:500;margin-bottom:16px;display:flex;gap:9px;align-items:center}
+  .banner svg{color:var(--ink-faint)}
   .banner.danger{background:var(--neg-soft);color:var(--neg);border:1px solid var(--neg)}
   .banner .btn{color:inherit;border-color:currentColor;background:transparent}
   .banner svg{width:16px;height:16px;flex:0 0 auto}
 
   .mobile-top{display:none} .botnav{display:none} .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
 
-  @media (max-width:1050px){ .dgrid{grid-template-columns:1fr} .grid3{grid-template-columns:1fr 1fr} .grid2{grid-template-columns:1fr} .rgrid{grid-template-columns:1fr} .board{grid-template-columns:1fr 1fr} }
+  @media (max-width:1150px){ .app{grid-template-columns:200px 1fr} }
+  @media (max-width:1050px){ .dgrid{grid-template-columns:1fr} .grid3{grid-template-columns:1fr 1fr} .grid2{grid-template-columns:1fr} .rgrid{grid-template-columns:1fr} .board{grid-template-columns:1fr 1fr} .sgrid{columns:1} }
+  @media (max-width:720px){ .attgrid{grid-template-columns:1fr} }
   @media (max-width:900px){
-    .app{grid-template-columns:1fr} .rail{display:none}
+    .app{grid-template-columns:1fr} .side{display:none}
     .mobile-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
-    .main{padding:16px 15px 92px;max-width:none}
-    .topbar h1{font-size:20px} .stat3{grid-template-columns:1fr 1fr} .grid3{grid-template-columns:1fr} .board{grid-template-columns:1fr} .lt-desktop{display:none}
-    .botnav{display:grid;grid-template-columns:repeat(8,1fr);position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line-2);z-index:40;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 18px rgba(16,20,30,.06)}
-    .botnav button{border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;color:var(--ink-faint);font-size:8px;font-weight:600;transition:.12s;line-height:1.1;font-family:var(--disp);overflow:hidden;text-align:center;min-width:0}
-    .botnav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .botnav button.on{color:var(--accent)} .botnav svg{width:18px;height:18px}
+    .main{padding:16px 15px 96px;max-width:none}
+    .topbar{flex-direction:column;align-items:stretch;gap:10px} .topbar h1{font-size:21px} .topcluster{justify-content:flex-start}
+    .topcluster .seg{flex-wrap:nowrap;overflow-x:auto;max-width:100%} .topcluster .seg button{white-space:nowrap}
+    .stat3{grid-template-columns:1fr 1fr} .grid3{grid-template-columns:1fr} .board{grid-template-columns:1fr} .lt-desktop{display:none}
+    .subtabs{width:100%;margin-top:0} .qa{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;margin-inline:-15px;padding-inline:15px}
+    .botnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line-2);z-index:40;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 18px rgba(16,20,30,.06)}
+    .botnav button{border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0 8px;color:var(--ink-faint);font-size:10.5px;font-weight:600;transition:.12s;line-height:1.1;font-family:var(--disp);min-width:0}
+    .botnav button.on{color:var(--accent)} .botnav svg{width:21px;height:21px}
+    .fab{display:grid;place-items:center;position:fixed;inset-inline-end:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:16px;background:var(--accent);color:#fff;border:none;box-shadow:0 10px 26px rgba(59,83,214,.42);z-index:45;transition:transform .15s}
+    .fab svg{width:24px;height:24px} .fab:active{transform:scale(.95)}
   }
   @media (max-width:480px){ .stat3{grid-template-columns:1fr} .net .big{font-size:26px} .row3{grid-template-columns:1fr} }
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
   @media print{
-    body{background:#fff} .rail,.botnav,.mobile-top,.topcluster,.no-print,.toolbar .seg,.banner{display:none!important}
+    body{background:#fff} .side,.fab,.subtabs,.qa,.botnav,.mobile-top,.topcluster,.no-print,.toolbar .seg,.banner{display:none!important} .app{grid-template-columns:1fr}
     .main{padding:0;max-width:none} .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid} .print-only{display:block!important}
   }
   .print-only{display:none}
@@ -377,6 +417,14 @@ const T={
   over_budget:"Over budget",dash_period:"Period",
   start_timer:"Start",stop_timer:"Stop",running:"running",pull_hours:"Pull billable hours",unbilled:"unbilled",no_unbilled:"No unbilled hours for this client.",
   type:"Type",p_last:"Last month",p_bimonthly:"Filing period",
+  nav_home:"Home",nav_money:"Money",nav_work:"Work",nav_settings:"Settings",new_l:"New",quick_create:"What do you want to create?",more:"More",
+  attention:"Needs attention",all_clear:"All clear. Nothing needs your attention right now.",overdue_invoices:"overdue invoices",pending_overdue:"overdue receivables",overdue_tasks:"overdue tasks",over_budget_projects:"projects over budget",unbilled_hours:"unbilled billable hours",backup_old:"No backup in over a week",backup_never:"Never backed up. Export one now.",
+  getting_started:"Getting started",gs_company:"Add your company details",gs_client:"Add your first client",gs_project:"Create a project",gs_invoice:"Send your first invoice",gs_backup:"Export a backup",gs_done:"You're all set",
+  last_backup:"Last backup",never:"never",days_ago:"days ago",today:"today",
+  s_company:"Company & invoicing",s_company_sub:"Shown on invoices, quotes and reports.",s_appearance:"Appearance & language",s_team:"Team",s_recurring:"Recurring",s_data:"Data & backup",s_data_sub:"Your books are stored in this browser. Export regularly.",s_activity:"Recent activity",s_shortcuts:"Keyboard shortcuts",
+  language:"Language",theme:"Theme",light:"Light",dark:"Dark",storage_ok:"Storage is working",storage_bad:"Storage is not writable",members_l:"members",rules_l:"rules",
+  sc_search:"Search anything",sc_new:"New in current section",sc_nav:"then a letter to jump: h home · m money · w work · c clients · s settings",
+  includes_vat:"includes",sort_hint:"Click to sort",view_more:"View more",search_btn:"Search",
   storage_err:"Changes could NOT be saved. Export a backup now, then free up space or use a normal browser window.",
   storage_recover:"Your saved data could not be read, so saving is paused to protect it. Import a backup to recover.",
   save_failed:"Not saved",dismiss:"Dismiss",
@@ -439,6 +487,14 @@ const T={
   over_budget:"تجاوز الميزانية",dash_period:"الفترة",
   start_timer:"ابدأ",stop_timer:"إيقاف",running:"قيد التشغيل",pull_hours:"سحب الساعات القابلة للفوترة",unbilled:"غير مفوترة",no_unbilled:"لا توجد ساعات غير مفوترة لهذا العميل.",
   type:"النوع",p_last:"الشهر الماضي",p_bimonthly:"فترة الإقرار",
+  nav_home:"الرئيسية",nav_money:"المال",nav_work:"العمل",nav_settings:"الإعدادات",new_l:"جديد",quick_create:"ماذا تريد أن تنشئ؟",more:"المزيد",
+  attention:"يحتاج انتباهك",all_clear:"كل شيء على ما يرام. لا شيء يحتاج انتباهك الآن.",overdue_invoices:"فواتير متأخرة",pending_overdue:"مستحقات متأخرة",overdue_tasks:"مهام متأخرة",over_budget_projects:"مشاريع تجاوزت الميزانية",unbilled_hours:"ساعات قابلة للفوترة لم تُفوتر",backup_old:"لم تُصدّر نسخة احتياطية منذ أكثر من أسبوع",backup_never:"لم تُصدّر نسخة احتياطية بعد. صدّر واحدة الآن.",
+  getting_started:"ابدأ من هنا",gs_company:"أضف بيانات شركتك",gs_client:"أضف أول عميل",gs_project:"أنشئ مشروعًا",gs_invoice:"أرسل أول فاتورة",gs_backup:"صدّر نسخة احتياطية",gs_done:"كل شيء جاهز",
+  last_backup:"آخر نسخة احتياطية",never:"لم تتم",days_ago:"أيام مضت",today:"اليوم",
+  s_company:"الشركة والفوترة",s_company_sub:"تظهر في الفواتير وعروض الأسعار والتقارير.",s_appearance:"المظهر واللغة",s_team:"الفريق",s_recurring:"المتكررة",s_data:"البيانات والنسخ الاحتياطي",s_data_sub:"دفاترك محفوظة في هذا المتصفح. صدّر نسخة بانتظام.",s_activity:"أحدث النشاط",s_shortcuts:"اختصارات لوحة المفاتيح",
+  language:"اللغة",theme:"المظهر",light:"فاتح",dark:"داكن",storage_ok:"التخزين يعمل بشكل سليم",storage_bad:"التخزين غير قابل للكتابة",members_l:"أعضاء",rules_l:"قواعد",
+  sc_search:"ابحث عن أي شيء",sc_new:"جديد في القسم الحالي",sc_nav:"ثم حرفًا للانتقال: h الرئيسية · m المال · w العمل · c العملاء · s الإعدادات",
+  includes_vat:"تشمل",sort_hint:"اضغط للترتيب",view_more:"عرض المزيد",search_btn:"بحث",
   storage_err:"تعذّر حفظ التغييرات. صدّر نسخة احتياطية الآن، ثم أفرغ مساحة أو استخدم نافذة عادية.",
   storage_recover:"تعذّرت قراءة بياناتك المحفوظة، لذا أُوقف الحفظ مؤقتًا لحمايتها. استورد نسخة احتياطية للاسترجاع.",
   save_failed:"لم يتم الحفظ",dismiss:"إخفاء",
@@ -555,7 +611,8 @@ function money(n,sign){n=Number(n)||0; const p=sign&&n>0?"+":((sign&&n<0)||n<0?"
 function bigMoney(n,sign){n=Number(n)||0; const p=sign&&n>0?"+":((sign&&n<0)||n<0?"−":""); return `<span class="count" data-to="${Math.abs(n)}" data-dec="3" data-prefix="${p}">${p}${fmtNum(n)}</span> <span class="cur">${L("curr")}</span>`;}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function initials(n){const p=String(n||"?").trim().split(/\s+/);return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase();}
-function fmtDate(d){if(!d)return"—";try{return new Date(d+"T00:00:00").toLocaleDateString(lang==="ar"?"ar-EG":"en-GB",{day:"2-digit",month:"short",year:"numeric"});}catch(e){return d;}}
+function fmtDate(d){if(!d)return"—";try{return new Date(d+"T00:00:00").toLocaleDateString(lang==="ar"?"ar-JO-u-nu-latn":"en-GB",{day:"2-digit",month:"short",year:"numeric"});}catch(e){return d;}}
+function lastBackupDays(){try{const t=Number(localStorage.getItem("mizan_lastBackup")||0);if(!t)return null;return Math.floor((Date.now()-t)/86400000);}catch(e){return null;}}
 function ym(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
 function ymd(d){return ym(d)+"-"+String(d.getDate()).padStart(2,"0");}
 function todayISO(){return ymd(new Date());}
@@ -628,28 +685,55 @@ const I={
  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>',
  download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>',
 };
-const NAV=[["dashboard",I.dashboard],["clients",I.clients],["projects",I.projects],["tasks",I.tasks],["invoices",I.invoices],["income",I.income],["expenses",I.expenses],["reports",I.reports]];
+I.wallet='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2"/><path d="M3 7v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-3"/><path d="M21 11h-4a2 2 0 0 0 0 4h4a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1z"/></svg>';
+I.home='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>';
+I.work='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>';
+I.sortup='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V6M7 11l5-5 5 5"/></svg>';
+I.sortdown='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v12M7 13l5 5 5-5"/></svg>';
+const NAV=[["dashboard",I.home,"nav_home"],["money",I.wallet,"nav_money"],["work",I.work,"nav_work"],["clients",I.clients,"nav_clients"],["settings",I.gear,"nav_settings"]];
+const SUBS={money:["invoices","quotes","income","expenses","reports"],work:["projects","tasks","team"]};
+const SUBLABEL={invoices:"tab_invoices",quotes:"tab_quotes",income:"income",expenses:"expenses",reports:"reports",projects:"projects",tasks:"nav_tasks",team:"team"};
+const LEGACY={income:["money","income"],expenses:["money","expenses"],invoices:["money","invoices"],quotes:["money","quotes"],reports:["money","reports"],projects:["work","projects"],tasks:["work","tasks"],team:["work","team"]};
+const sub={money:"invoices",work:"projects"};
+const KB='tabindex="0" role="button" onkeydown="rowKey(event)"';
+function rowKey(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();e.currentTarget.click();}}
+function viewKey(){return SUBS[view]?sub[view]:view;}
+function navActive(k){if(view===k)return true;if(k==="money"&&view==="invoice")return true;if(k==="clients"&&view==="client")return true;if(k==="work"&&view==="project")return true;return false;}
+function routeHash(){const p=[view];if(SUBS[view])p.push(sub[view]);if(view==="invoice"&&invoiceId)p.push(invoiceId);if((view==="client"||view==="project")&&detailId)p.push(detailId);return "#/"+p.map(encodeURIComponent).join("/");}
+function pushRoute(){try{const h=routeHash();if(location.hash!==h)history.pushState({v:view},"",h);}catch(e){}}
+function applyHash(){const h=(location.hash||"").replace(/^#\/?/,"");if(!h)return false;const p=h.split("/").map(s=>{try{return decodeURIComponent(s);}catch(e){return s;}});const v=p[0];
+  if(SUBS[v]){view=v;if(p[1]&&SUBS[v].includes(p[1]))sub[v]=p[1];if(v==="money")invTab=sub.money==="quotes"?"quote":"invoice";return true;}
+  if(v==="invoice"){view="invoice";invoiceId=p[1]||null;return true;}
+  if(v==="client"||v==="project"){view=v;detailId=p[1]||null;return true;}
+  if(v==="dashboard"||v==="clients"||v==="settings"){view=v;return true;}
+  return false;}
+let _skipPop=false,_lastFocus=null;
+window.addEventListener("popstate",()=>{ if(_skipPop){_skipPop=false;return;} if(modalHost().innerHTML){modalHost().innerHTML="";restoreFocus();return;} if(paletteOpen)paletteOpen=false; applyHash(); justNavigated=true; render(); });
+function restoreFocus(){try{if(_lastFocus&&document.contains(_lastFocus))_lastFocus.focus({preventScroll:true});}catch(e){}_lastFocus=null;}
 
 /* ===================== render ===================== */
 function render(){
   document.documentElement.lang=lang;
   document.documentElement.dir=lang==="ar"?"rtl":"ltr";
   document.documentElement.dataset.theme=theme;
+  const af=document.activeElement&&document.activeElement.id;
   document.getElementById("root").innerHTML=`
-    ${rail()}
-    <div class="main ${justNavigated?'anim-in':''}">
+    ${sidebar()}
+    <main class="main ${justNavigated?'anim-in':''}" id="main">
       ${mobileTop()}
       ${topbar()}
+      ${subtabs()}
       ${loadFailed?`<div class="banner danger">${I.warn}<span>${esc(L("storage_recover"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="triggerImport()">${esc(L("import_backup"))}</button></div>`:""}
       ${(!storageOK&&!loadFailed)?`<div class="banner danger">${I.warn}<span>${esc(L("storage_err"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="exportBackup()">${esc(L("export_backup"))}</button></div>`:""}
       ${(backend==="local"&&!noteDismissed&&storageOK&&!loadFailed)?`<div class="banner">${I.warn}<span>${esc(L("local_note"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="dismissNote()">${esc(L("dismiss"))}</button></div>`:""}
       ${readOnly?`<div class="banner">${I.warn}${esc(L("readonly_note"))}</div>`:""}
       ${renderView()}
-    </div>
-    ${botnav()}
+    </main>
+    ${botnav()}${fab()}
     ${paletteOpen?palette():""}`;
   bindInputs();
   if(paletteOpen){const pi=document.getElementById("palInput");if(pi)pi.focus();}
+  else if(af){const el=document.getElementById(af);if(el&&!modalHost().innerHTML){try{el.focus({preventScroll:true});}catch(e){}}}
   if(justNavigated){ countUp(); justNavigated=false; }
   manageTimerTick();
 }
@@ -659,30 +743,34 @@ async function startTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t)retur
 async function stopTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t||!t.timerStart)return;const d={...t,loggedHours:Math.round(((Number(t.loggedHours)||0)+elapsedHours(t))*100)/100,timerStart:null,updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d,true);}
 function updateTimers(){document.querySelectorAll("[data-tstart]").forEach(el=>{const s=el.getAttribute("data-tstart"),base=Number(el.getAttribute("data-base"))||0;el.textContent=(base+(Date.now()-new Date(s).getTime())/3600000).toFixed(2)+"h";});}
 function manageTimerTick(){const any=state.tasks.some(t=>t.timerStart);if(any&&!timerTick){timerTick=setInterval(updateTimers,1000);updateTimers();}else if(!any&&timerTick){clearInterval(timerTick);timerTick=null;}}
-function rail(){
-  return `<aside class="rail"><div class="rail-logo">${I.logo}</div>
-    <nav class="rail-nav">${NAV.map(([k,ic])=>`<button class="rbtn ${view===k?'on':''}" onclick="go('${k}')" aria-label="${esc(L('nav_'+k))}">${ic}<span class="tip">${esc(L('nav_'+k))}</span></button>`).join("")}</nav>
-    <div class="rail-foot">
-      <button class="rbtn" onclick="openSettings()" aria-label="${esc(L('settings'))}">${I.gear}<span class="tip">${esc(L('settings'))}</span></button>
-      <button class="rbtn" onclick="toggleTheme()" aria-label="theme">${theme==='dark'?I.sun:I.moon}</button>
+function sidebar(){
+  const lb=lastBackupDays();
+  const bk=backend==="local"?`<button class="side-chip ${lb===null||lb>7?'warn':''}" onclick="go('settings')" title="${esc(L("last_backup"))}">${I.download}<span>${esc(L("last_backup"))}: ${lb===null?esc(L("never")):(lb===0?esc(L("today")):lb+" "+esc(L("days_ago")))}</span></button>`:"";
+  return `<aside class="side no-print">
+    <div class="side-brand"><span class="logo">${I.logo}</span><div><div class="bn">${esc(L("appName"))}</div><div class="bs">${esc(state.settings.company||L("tagline"))}</div></div></div>
+    ${!readOnly?`<button class="btn accent side-new" id="btn-new" onclick="openQuick()">${I.plus}${esc(L("new_l"))}</button>`:""}
+    <nav class="side-nav" aria-label="Main">${NAV.map(([k,ic,lk])=>`<button id="nav-${k}" class="sbtn ${navActive(k)?'on':''}" onclick="go('${k}')" ${navActive(k)?'aria-current="page"':''}>${ic}<span>${esc(L(lk))}</span></button>`).join("")}</nav>
+    <div class="side-foot">
+      <button class="sbtn" id="btn-search" onclick="openPalette()">${I.search}<span>${esc(L("search_btn"))}</span><kbd>${navigator.platform&&navigator.platform.indexOf('Mac')>=0?'⌘K':'Ctrl K'}</kbd></button>
+      ${bk}
+      <div class="side-row">${langToggle()}<button class="iconbtn" id="btn-theme" onclick="toggleTheme()" aria-label="${esc(L("theme"))}">${theme==='dark'?I.sun:I.moon}</button></div>
     </div></aside>`;
 }
 function mobileTop(){
-  return `<div class="mobile-top">
-    <div style="display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;font-family:var(--disp)">
-      <span style="width:29px;height:29px;border-radius:5px;background:linear-gradient(150deg,var(--accent),var(--accent-4));color:#fff;display:grid;place-items:center">${I.logo}</span>${esc(L("appName"))}</div>
+  return `<div class="mobile-top no-print">
+    <div style="display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;font-family:var(--disp)"><span class="logo" style="width:29px;height:29px">${I.logo}</span>${esc(L("appName"))}</div>
     <div style="display:flex;gap:6px;align-items:center">
-      <button class="iconbtn" onclick="openPalette()" style="width:36px;height:36px">${I.search}</button>
-      <button class="iconbtn" onclick="toggleTheme()" style="width:36px;height:36px">${theme==='dark'?I.sun:I.moon}</button>
-      <button class="iconbtn" onclick="openSettings()" style="width:36px;height:36px">${I.gear}</button>
+      <button class="iconbtn" onclick="openPalette()" style="width:36px;height:36px" aria-label="${esc(L("sc_search"))}">${I.search}</button>
       ${langToggle()}
     </div></div>`;
 }
-function langToggle(){return `<div class="lang-toggle"><button class="${lang==='en'?'on':''}" onclick="setLang('en')">EN</button><button class="${lang==='ar'?'on':''}" onclick="setLang('ar')">عربي</button></div>`;}
-function botnav(){return `<nav class="botnav">${NAV.map(([k,ic])=>`<button class="${view===k?'on':''}" onclick="go('${k}')">${ic}<span>${esc(L("nav_"+k))}</span></button>`).join("")}</nav>`;}
+function langToggle(){return `<div class="lang-toggle" role="group" aria-label="${esc(L("language"))}"><button class="${lang==='en'?'on':''}" onclick="setLang('en')">EN</button><button class="${lang==='ar'?'on':''}" onclick="setLang('ar')">عربي</button></div>`;}
+function botnav(){return `<nav class="botnav no-print" aria-label="Main">${NAV.map(([k,ic,lk])=>`<button id="bnav-${k}" class="${navActive(k)?'on':''}" onclick="go('${k}')">${ic}<span>${esc(L(lk))}</span></button>`).join("")}</nav>`;}
+function fab(){return readOnly?"":`<button class="fab no-print" onclick="openQuick()" aria-label="${esc(L("new_l"))}">${I.plus}</button>`;}
+function subtabs(){ if(!SUBS[view])return""; return `<div class="subtabs no-print" role="tablist">${SUBS[view].map(s=>`<button id="sub-${s}" role="tab" aria-selected="${sub[view]===s}" class="${sub[view]===s?'on':''}" onclick="go('${view}','${s}')">${esc(L(SUBLABEL[s]))}</button>`).join("")}</div>`; }
 
 function topbar(){
-  const map={dashboard:["dashboard","overview_sub"],clients:["clients","clients_sub"],projects:["projects","projects_sub"],tasks:["tasks","tasks_sub"],invoices:["invoices","invoices_sub"],income:["income","income_sub"],expenses:["expenses","expenses_sub"],reports:["reports","reports_sub"]};
+  const map={dashboard:["nav_home","overview_sub"],clients:["clients","clients_sub"],projects:["projects","projects_sub"],tasks:["tasks","tasks_sub"],invoices:["invoices","invoices_sub"],income:["income","income_sub"],expenses:["expenses","expenses_sub"],reports:["reports","reports_sub"]};
   if(view==="client"||view==="project"){const isC=view==="client";const ent=isC?state.clients.find(x=>x.id===detailId):state.projects.find(x=>x.id===detailId);
     const act=`<button class="btn" onclick="go('${isC?'clients':'projects'}')">${esc(L("back"))}</button>${!readOnly&&ent?`<button class="btn" onclick="${isC?`openClient('${detailId}')`:`openProject('${detailId}')`}">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print"))}</button>`;
     return `<div class="topbar"><div><h1>${ent?esc(ent.name):"—"}</h1><div class="sub">${isC?esc(L("client_statement")):esc(clientName(ent&&ent.clientId)||L("project_overview"))}</div></div><div class="topcluster no-print">${act}</div></div>`;}
@@ -691,32 +779,38 @@ function topbar(){
     const act=`<button class="btn" onclick="go('invoices')">${esc(L("back"))}</button>${prim}${!readOnly&&inv?`<button class="btn" onclick="openInvoice('${invoiceId}')">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print_invoice"))}</button>`;
     return `<div class="topbar"><div><h1>${inv?esc(invNumber(inv)):esc(L("invoice"))}</h1><div class="sub">${inv?esc(clientName(inv.clientId)||"")+" · "+fmtDate(inv.issueDate):""}</div></div><div class="topcluster no-print">${act}</div></div>`;
   }
-  const [t,s]=map[view];let action="";
+  map.quotes=["tab_quotes","invoices_sub"];map.team=["team","tasks_sub"];map.settings=["settings","settings_sub"];map.money=["nav_money","invoices_sub"];map.work=["nav_work","projects_sub"];
+  const key=viewKey();const [t,s]=map[key]||map[view]||["dashboard","overview_sub"];let action="";
   if(!readOnly){
-    if(view==="clients")action=`<button class="btn primary" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`;
-    if(view==="projects")action=`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`;
-    if(view==="income")action=`<button class="btn accent" onclick="openTx('income')">${I.plus}${esc(L("add_income"))}</button>`;
-    if(view==="expenses")action=`<button class="btn primary" onclick="openTx('expense')">${I.plus}${esc(L("add_expense"))}</button>`;
-    if(view==="tasks")action=`<button class="btn" onclick="openTeam()">${I.user}${esc(L("manage_team"))}</button><button class="btn accent" onclick="openTask()">${I.plus}${esc(L("add_task"))}</button>`;
-    if(view==="invoices")action=`<button class="btn accent" onclick="openInvoice()">${I.plus}${esc(L("new_invoice"))}</button>`;
+    if(key==="clients")action=`<button class="btn primary" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`;
+    if(key==="projects")action=`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`;
+    if(key==="income")action=`<button class="btn accent" onclick="openTx('income')">${I.plus}${esc(L("add_income"))}</button>`;
+    if(key==="expenses")action=`<button class="btn primary" onclick="openTx('expense')">${I.plus}${esc(L("add_expense"))}</button>`;
+    if(key==="tasks")action=`<button class="btn accent" onclick="openTask()">${I.plus}${esc(L("add_task"))}</button>`;
+    if(key==="team")action=`<button class="btn accent" onclick="openMember()">${I.plus}${esc(L("add_member"))}</button>`;
+    if(key==="invoices")action=`<button class="btn accent" onclick="openInvoice(null,'invoice')">${I.plus}${esc(L("new_invoice"))}</button>`;
+    if(key==="quotes")action=`<button class="btn accent" onclick="openInvoice(null,'quote')">${I.plus}${esc(L("new_quote"))}</button>`;
   }
-  if(view==="reports")action=`<button class="btn" onclick="exportCSV()">${I.download}${esc(L("export_csv"))}</button><button class="btn primary" onclick="window.print()">${I.print}${esc(L("print"))}</button>`;
-  const kbd=`<button class="btn ghost cmdk" onclick="openPalette()" title="Search (Ctrl/⌘ K)">${I.search}<span class="kbd">${navigator.platform&&navigator.platform.indexOf('Mac')>=0?'⌘K':'Ctrl K'}</span></button>`;
-  return `<div class="topbar"><div><h1>${esc(L(t))}</h1><div class="sub">${esc(L(s))}</div></div>
-    <div class="topcluster"><span class="lt-desktop">${kbd}${langToggle()}</span>${action}</div></div>`;
+  if(key==="reports")action=`<button class="btn" onclick="exportCSV()">${I.download}${esc(L("export_csv"))}</button><button class="btn primary" onclick="window.print()">${I.print}${esc(L("print"))}</button>`;
+  if(key==="dashboard")action=`<div class="seg" role="group">${PERIODS.map(p=>`<button id="per-${p}" class="${dashPeriod===p?'on':''}" onclick="setDashPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div>`;
+  const sub2=key==="dashboard"&&state.settings.company?esc(state.settings.company)+" · "+esc(periodLabel(dashPeriod)):esc(L(s));
+  return `<div class="topbar"><div><h1>${esc(L(t))}</h1><div class="sub">${sub2}</div></div><div class="topcluster no-print">${action}</div></div>`;
 }
 function renderView(){
-  if(view==="dashboard")return dashboard();
-  if(view==="clients")return clientsView();
-  if(view==="projects")return projectsView();
-  if(view==="tasks")return tasksView();
-  if(view==="client")return clientDetail();
-  if(view==="project")return projectDetail();
-  if(view==="invoices")return invoicesView();
-  if(view==="invoice")return invoiceDetail();
-  if(view==="income")return txView("income");
-  if(view==="expenses")return txView("expense");
-  if(view==="reports")return reportsView();
+  const k=viewKey();
+  if(k==="dashboard")return dashboard();
+  if(k==="clients")return clientsView();
+  if(k==="projects")return projectsView();
+  if(k==="tasks")return tasksView();
+  if(k==="team")return teamView();
+  if(k==="client")return clientDetail();
+  if(k==="project")return projectDetail();
+  if(k==="invoices"||k==="quotes")return invoicesView();
+  if(k==="invoice")return invoiceDetail();
+  if(k==="income")return txView("income");
+  if(k==="expenses")return txView("expense");
+  if(k==="reports")return reportsView();
+  if(k==="settings")return settingsView();
   return"";
 }
 
@@ -727,7 +821,6 @@ function dashboard(){
   const activeCount=state.projects.filter(p=>p.status==="active").length;
   const incCount=flist.filter(x=>x.type==="income"&&isReceived(x)).length;
   const expCount=flist.filter(x=>x.type==="expense").length;
-  const pseg=`<div class="toolbar" style="margin-bottom:15px"><div class="seg">${PERIODS.map(p=>`<button class="${dashPeriod===p?"on":""}" onclick="setDashPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div></div>`;
   const stats=`<div class="stat3">
     <div class="stat pos"><div class="top"><span class="ic">${I.income}</span>${esc(L("total_income"))}</div><div class="big">${bigMoney(t.inc)}<span class="badge pos">${incCount} ${esc(L("entries"))}</span></div></div>
     <div class="stat neg"><div class="top"><span class="ic">${I.expenses}</span>${esc(L("total_expenses"))}</div><div class="big">${bigMoney(t.exp)}<span class="badge neg">${expCount} ${esc(L("entries"))}</span></div></div>
@@ -763,7 +856,9 @@ function dashboard(){
       <div style="display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:14px"><span style="font-weight:600">${esc(L("net_profit"))}</span><span class="money ${mInc-mExp>=0?'pos':'neg'}">${money(mInc-mExp,true)}</span></div>
     </div></div>`;
   const teamMini=state.members.length?workloadMini():"";
-  return `${pseg}${stats}
+  const gs=gettingStarted(),att=attentionCard();
+  const top=gs?`<div class="dgrid" style="margin-top:15px"><div class="dleft">${att}</div><div class="dcol">${gs}</div></div>`:`<div style="margin-top:15px">${att}</div>`;
+  return `${quickActions()}${stats}${top}
     <div class="dgrid" style="margin-top:15px"><div class="dleft">${hero}${recentCard}</div><div class="dcol">${net}${monthCard}</div></div>
     ${teamMini?`<div class="grid2" style="margin-top:15px">${topCard}${teamMini}</div>`:`<div style="margin-top:15px">${topCard}</div>`}`;
 }
@@ -798,41 +893,98 @@ function areaChart(){
     ${labels}</svg>`;
 }
 
+/* ---------- sorting ---------- */
+const sortState={};
+function sortTable(tbl,key){const s=sortState[tbl]||{};if(s.key===key)s.dir=s.dir==="asc"?"desc":"asc";else{s.key=key;s.dir="asc";}sortState[tbl]=s;render();}
+function th(tbl,key,label,cls){const s=sortState[tbl]||{};const on=s.key===key;return `<th class="${cls||''} sortable ${on?'on':''}" onclick="sortTable('${tbl}','${key}')" title="${esc(L("sort_hint"))}" aria-sort="${on?(s.dir==='asc'?'ascending':'descending'):'none'}"><span>${esc(label)}</span>${on?(s.dir==='asc'?I.sortup:I.sortdown):''}</th>`;}
+function applySort(tbl,rows,defKey,defDir){const s=sortState[tbl]||{key:defKey,dir:defDir||"asc"};const k=s.key,dir=s.dir==="desc"?-1:1;return rows.slice().sort((a,b)=>{const x=a._s[k],y=b._s[k];if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;if(typeof x==="number"&&typeof y==="number")return (x-y)*dir;return String(x).localeCompare(String(y))*dir;});}
+function vatHelp(){const a=num("f_amount"),r=num("f_vat"),el=document.getElementById("vatHelp");if(!el)return;if(a>0&&r>0){el.textContent=fmtNum(a)+" "+L("curr")+" "+L("includes_vat")+" "+fmtNum(a-a/(1+r/100))+" "+L("curr")+" "+L("vat")+" ("+r+"%)";}else el.textContent="";}
+
+/* ---------- home cards ---------- */
+function attentionCard(){
+  const items=[];
+  const ov=state.invoices.filter(i=>(i.kind||"invoice")==="invoice"&&invStatus(i)==="overdue");
+  if(ov.length)items.push({icon:I.invoices,cls:"neg",t:ov.length+" "+L("overdue_invoices"),s:money(ov.reduce((a,i)=>a+invTotal(i),0)),run:"go('money','invoices')"});
+  const po=state.transactions.filter(t=>isOverdue(t));
+  if(po.length)items.push({icon:I.income,cls:"neg",t:po.length+" "+L("pending_overdue"),s:money(po.reduce((a,t)=>a+(+t.amount||0),0)),run:"go('money','income')"});
+  const ot=state.tasks.filter(t=>taskOverdue(t));
+  if(ot.length)items.push({icon:I.tasks,cls:"warn",t:ot.length+" "+L("overdue_tasks"),s:ot.slice(0,2).map(t=>t.title).join(", "),run:"go('work','tasks')"});
+  const ob=state.projects.filter(p=>budgetState(p)==="over");
+  if(ob.length)items.push({icon:I.projects,cls:"warn",t:ob.length+" "+L("over_budget_projects"),s:ob.slice(0,2).map(p=>p.name).join(", "),run:"go('work','projects')"});
+  const ub=state.tasks.filter(t=>t.billable&&!t.billed&&(Number(t.loggedHours)||0)>0);
+  if(ub.length){const h=ub.reduce((a,t)=>a+(Number(t.loggedHours)||0),0);items.push({icon:I.clock,cls:"acc",t:h.toFixed(1)+"h "+L("unbilled_hours"),s:ub.length+" "+L("tasks_l"),run:"go('money','invoices')"});}
+  if(backend==="local"&&(state.transactions.length+state.invoices.length)>0){const lb=lastBackupDays();if(lb===null)items.push({icon:I.download,cls:"warn",t:L("backup_never"),s:"",run:"exportBackup()"});else if(lb>7)items.push({icon:I.download,cls:"warn",t:L("backup_old"),s:lb+" "+L("days_ago"),run:"exportBackup()"});}
+  const body=items.length?items.map(it=>`<div class="lrow att ${it.cls}" onclick="${it.run}" ${KB}><span class="ai">${it.icon}</span><div class="mid"><div class="t">${esc(it.t)}</div>${it.s?`<div class="s">${esc(it.s)}</div>`:""}</div>${I.arrow}</div>`).join(""):`<div class="allclear">${I.check}<span>${esc(L("all_clear"))}</span></div>`;
+  return `<div class="card hov"><div class="card-h"><h2>${esc(L("attention"))}</h2>${items.length?`<span class="badge neg">${items.length}</span>`:""}</div><div class="list ${items.length>2?'attgrid':''}">${body}</div></div>`;
+}
+function gettingStarted(){
+  const steps=[[!!state.settings.company,L("gs_company"),"go('settings')"],[state.clients.length>0,L("gs_client"),"openClient()"],[state.projects.length>0,L("gs_project"),"openProject()"],[state.invoices.some(i=>(i.kind||"invoice")==="invoice"),L("gs_invoice"),"openInvoice(null,'invoice')"],[lastBackupDays()!==null,L("gs_backup"),"exportBackup()"]];
+  const done=steps.filter(s=>s[0]).length; if(done===steps.length)return"";
+  return `<div class="card gs"><div class="card-h"><h2>${esc(L("getting_started"))}</h2><span class="hint">${done}/${steps.length}</span></div><div class="gsbar"><i style="width:${done/steps.length*100}%"></i></div><div class="list">${steps.map(([ok,lbl,run])=>`<div class="lrow gsrow ${ok?'done':''}" ${ok?'':`onclick="${run}" ${KB}`}><span class="gsc">${ok?I.check:""}</span><span class="t">${esc(lbl)}</span>${ok?"":I.arrow}</div>`).join("")}</div></div>`;
+}
+function quickActions(){ if(readOnly)return""; return `<div class="qa no-print"><button class="qab" onclick="openInvoice(null,'invoice')">${I.invoices}<span>${esc(L("new_invoice"))}</span></button><button class="qab" onclick="openTx('income')">${I.income}<span>${esc(L("add_income"))}</span></button><button class="qab" onclick="openTx('expense')">${I.expenses}<span>${esc(L("add_expense"))}</span></button><button class="qab" onclick="openTask()">${I.tasks}<span>${esc(L("add_task"))}</span></button></div>`; }
+
+/* ---------- settings page ---------- */
+function settingsView(){
+  const s=state.settings,lb=lastBackupDays();
+  const kl={clients:L("client"),projects:L("project"),transactions:L("amount"),tasks:L("nav_tasks"),invoices:L("invoice"),members:L("member"),recurring:L("recurring")};
+  const company=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_company"))}</h2><span class="hint">${esc(L("s_company_sub"))}</span></div><div class="secb">
+    <div class="row2">${field("s_company",L("company_name"),`<input id="s_company" value="${esc(s.company||"")}">`)}${field("s_tin",L("tin"),`<input id="s_tin" value="${esc(s.tin||"")}">`)}</div>
+    <div class="row2">${field("s_addr",L("bill_to")+" / "+L("from_l"),`<input id="s_addr" value="${esc(s.address||"")}">`)}${field("s_vat",L("vat_rate")+" (%)",`<input id="s_vat" type="number" step="0.1" min="0" value="${esc(s.vatRate)}">`)}</div>
+    ${readOnly?"":`<button class="btn accent" id="saveSettingsBtn" onclick="saveSettingsPage()">${I.check}${esc(L("save"))}</button>`}</div></div>`;
+  const appearance=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_appearance"))}</h2></div><div class="secb" style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end">
+    <div><div class="lbl2">${esc(L("language"))}</div>${langToggle()}</div>
+    <div><div class="lbl2">${esc(L("theme"))}</div><div class="seg"><button class="${theme==='light'?'on':''}" onclick="setTheme('light')">${esc(L("light"))}</button><button class="${theme==='dark'?'on':''}" onclick="setTheme('dark')">${esc(L("dark"))}</button></div></div></div></div>`;
+  const data=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_data"))}</h2></div><div class="secb"><p class="muted" style="margin:0 0 10px;font-size:12.5px">${esc(L("s_data_sub"))}</p>
+    <div class="kv"><span class="k">${esc(L("last_backup"))}</span><span class="v ${lb===null||lb>7?'warnc':''}">${lb===null?esc(L("never")):(lb===0?esc(L("today")):lb+" "+esc(L("days_ago")))}</span></div>
+    <div class="kv"><span class="k">${esc(L("storage_ok"))}</span><span class="v">${storageOK&&!loadFailed?'<span class="pill received">OK</span>':'<span class="pill overdue">'+esc(L("storage_bad"))+'</span>'}</span></div>
+    <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap"><button class="btn accent" onclick="exportBackup()">${I.download}${esc(L("export_backup"))}</button><button class="btn" onclick="triggerImport()">${I.arrow}${esc(L("import_backup"))}</button></div></div></div>`;
+  const team=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_team"))}</h2><span class="hint">${state.members.length} ${esc(L("members_l"))}</span></div><div class="list">${state.members.slice(0,6).map(m=>`<div class="lrow" onclick="openMember('${m.id}')" ${KB}><span class="mav" style="background:${safeColor(m.color)}">${esc(initials(m.name))}</span><div class="mid"><div class="t">${esc(m.name)}</div><div class="s">${esc(m.role||"—")}</div></div>${I.arrow}</div>`).join("")||`<div class="muted" style="padding:10px 12px;font-size:13px">${esc(L("no_members_p"))}</div>`}</div><div class="secf">${readOnly?"":`<button class="btn" onclick="openMember()">${I.plus}${esc(L("add_member"))}</button>`}<button class="btn ghost" onclick="go('work','team')">${esc(L("view_all"))}</button></div></div>`;
+  const rec=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_recurring"))}</h2><span class="hint">${state.recurring.length} ${esc(L("rules_l"))}</span></div><div class="list">${state.recurring.slice(0,6).map(r=>`<div class="lrow" onclick="openRecurringRule('${r.id}')" ${KB}><span class="ai" style="color:${r.kind==='income'?'var(--pos)':'var(--neg)'}">${r.kind==='income'?I.income:I.expenses}</span><div class="mid"><div class="t">${esc(r.label||catLabel(r.category))}</div><div class="s">${money(r.amount)} · ${esc(L("every_month"))}</div></div>${I.arrow}</div>`).join("")||`<div class="muted" style="padding:10px 12px;font-size:13px">${esc(L("no_recurring"))}</div>`}</div><div class="secf">${readOnly?"":`<button class="btn" onclick="openRecurringRule()">${I.plus}${esc(L("add_recurring"))}</button>`}<button class="btn ghost" onclick="openRecurring()">${esc(L("view_all"))}</button></div></div>`;
+  const act=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_activity"))}</h2></div><div class="list">${state.activity.slice(0,6).map(a=>`<div class="lrow" style="cursor:default"><span class="dotc" style="background:${a.action==='act_created'?'var(--pos)':a.action==='act_deleted'?'var(--neg)':'var(--accent)'}"></span><div class="mid"><div class="t" style="font-weight:500">${esc(L(a.action))} ${esc(kl[a.kind]||a.kind)}${a.label?` · <span class="muted">${esc(a.label)}</span>`:""}</div></div><span class="s" style="white-space:nowrap">${timeAgo(a.ts)}</span></div>`).join("")||`<div class="muted" style="padding:10px 12px;font-size:13px">${esc(L("no_activity_log"))}</div>`}</div><div class="secf"><button class="btn ghost" onclick="openActivity()">${esc(L("view_all"))}</button></div></div>`;
+  const keys=`<div class="card sec"><div class="card-h"><h2>${esc(L("s_shortcuts"))}</h2></div><div class="secb"><div class="kv"><span class="k"><kbd>Ctrl</kbd> <kbd>K</kbd> · <kbd>/</kbd></span><span class="v">${esc(L("sc_search"))}</span></div><div class="kv"><span class="k"><kbd>N</kbd></span><span class="v">${esc(L("sc_new"))}</span></div><div class="kv"><span class="k"><kbd>G</kbd></span><span class="v" style="text-align:end;font-weight:500">${esc(L("sc_nav"))}</span></div><div class="kv"><span class="k"><kbd>Esc</kbd></span><span class="v">${esc(L("cancel"))}</span></div></div></div>`;
+  return `<div class="sgrid">${company}${data}${appearance}${team}${rec}${act}${keys}</div>`;
+}
+async function saveSettingsPage(){const b=document.getElementById("saveSettingsBtn");if(b)b.disabled=true;try{await saveSettings({company:val("s_company"),vatRate:num("s_vat"),tin:val("s_tin"),address:val("s_addr")});toast(L("saved"));}catch(e){if(b)b.disabled=false;toast((e&&e.message)||L("save_failed"));}}
+
 /* ---------- clients ---------- */
 function clientsView(){
   const q=filters.clientSearch.toLowerCase();
-  let list=state.clients.filter(c=>!q||[c.name,c.company,c.phone,c.email].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const rows=state.clients.filter(c=>!q||[c.name,c.company,c.phone,c.email].some(v=>String(v||"").toLowerCase().includes(q))).map(c=>{const pc=state.projects.filter(p=>p.clientId===c.id).length;let billed=0;for(const t of state.transactions){if(t.clientId===c.id&&t.type==="income"&&isReceived(t))billed+=+t.amount||0;}return {c,pc,billed,_s:{name:String(c.name||"").toLowerCase(),phone:c.phone||"",pc,billed}};});
+  const list=applySort("clients",rows,"name");
   const toolbar=`<div class="toolbar"><div class="search">${I.search}<input id="clientSearch" placeholder="${esc(L("search_clients"))}" value="${esc(filters.clientSearch)}"></div></div>`;
   if(!state.clients.length)return toolbar+emptyState("no_clients_h","no_clients_p",readOnly?"":`<button class="btn accent" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`);
-  const body=list.map(c=>{const pc=state.projects.filter(p=>p.clientId===c.id).length;let billed=0;for(const t of state.transactions){if(t.clientId===c.id&&t.type==="income"&&isReceived(t))billed+=+t.amount||0;}
-    return `<tr onclick="openClientDetail('${c.id}')" style="cursor:pointer"><td><div class="cellflex"><span class="avatar">${esc(initials(c.name))}</span><div><div class="strong">${esc(c.name)}</div><div class="rowsub">${esc(c.company||"—")}</div></div></div></td>
+  const body=list.map(({c,pc,billed})=>`<tr onclick="openClientDetail('${c.id}')" ${KB} class="rowlink"><td><div class="cellflex"><span class="avatar">${esc(initials(c.name))}</span><div><div class="strong">${esc(c.name)}</div><div class="rowsub">${esc(c.company||"—")}</div></div></div></td>
       <td>${c.phone?esc(c.phone):'<span class="muted">—</span>'}${c.email?`<div class="rowsub">${esc(c.email)}</div>`:""}</td>
       <td class="r"><span class="tag">${pc} ${esc(L("projects_count"))}</span></td>
       <td class="r"><span class="money pos">${money(billed)}</span></td>
-      <td class="r" onclick="event.stopPropagation()">${rowActions(`openClient('${c.id}')`,`confirmDel('clients','${c.id}')`)}</td></tr>`;}).join("");
-  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("name"))}</th><th>${esc(L("phone"))}</th><th class="r">${esc(L("projects_count"))}</th><th class="r">${esc(L("billed"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+      <td class="r" onclick="event.stopPropagation()">${rowActions(`openClient('${c.id}')`,`confirmDel('clients','${c.id}')`)}</td></tr>`).join("");
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr>${th("clients","name",L("name"))}${th("clients","phone",L("phone"))}${th("clients","pc",L("projects_count"),"r")}${th("clients","billed",L("billed"),"r")}<th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 /* ---------- projects ---------- */
 function projectsView(){
   const q=filters.projSearch.toLowerCase();
-  let list=state.projects.filter(p=>filters.projStatus==="all"||p.status===filters.projStatus).filter(p=>!q||[p.name,clientName(p.clientId)].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>String(b.startDate||"").localeCompare(String(a.startDate||"")));
+  const rows=state.projects.filter(p=>filters.projStatus==="all"||p.status===filters.projStatus).filter(p=>!q||[p.name,clientName(p.clientId)].some(v=>String(v||"").toLowerCase().includes(q))).map(p=>{const s=projStats(p.id);return {p,s,_s:{name:String(p.name||"").toLowerCase(),status:p.status||"active",budget:+p.budget||0,inc:s.inc,exp:s.exp,labor:s.labor,profit:s.profit,startDate:p.startDate||""}};});
+  const list=applySort("projects",rows,"startDate","desc");
   const toolbar=`<div class="toolbar"><div class="search">${I.search}<input id="projSearch" placeholder="${esc(L("search_projects"))}" value="${esc(filters.projSearch)}"></div>
     <div class="seg"><button class="${filters.projStatus==='all'?'on':''}" onclick="setProjStatus('all')">${esc(L("all"))}</button>${STATUSES.map(s=>`<button class="${filters.projStatus===s?'on':''}" onclick="setProjStatus('${s}')">${esc(L("st_"+s))}</button>`).join("")}</div></div>`;
   if(!state.projects.length)return toolbar+emptyState("no_projects_h","no_projects_p",readOnly?"":`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`);
-  const body=list.map(p=>{const s=projStats(p.id),budget=+p.budget||0,pct=budget>0?Math.min(100,Math.round(s.inc/budget*100)):0,margin=s.inc>0?Math.round(s.profit/s.inc*100):0,bs=budgetState(p);
-    return `<tr onclick="openProjectDetail('${p.id}')" style="cursor:pointer"><td><div class="strong">${esc(p.name)}</div><div class="rowsub">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></td>
+  const body=list.map(({p,s})=>{const budget=+p.budget||0,pct=budget>0?Math.min(100,Math.round(s.inc/budget*100)):0,margin=s.inc>0?Math.round(s.profit/s.inc*100):0,bs=budgetState(p);
+    return `<tr onclick="openProjectDetail('${p.id}')" ${KB} class="rowlink"><td><div class="strong">${esc(p.name)}</div><div class="rowsub">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></td>
       <td><span class="pill ${p.status||'active'}">${esc(L("st_"+(p.status||"active")))}</span></td>
       <td class="r"><span class="money">${budget?money(budget):'—'}</span>${budget?`<div class="rowsub" style="color:${bs==='over'?'var(--neg)':bs==='full'?'var(--pos)':'var(--ink-faint)'}">${bs==='over'?'⚠ '+esc(L("over_budget")):pct+"% "+esc(L("collected"))}</div>`:""}</td>
       <td class="r"><span class="money pos">${money(s.inc)}</span></td><td class="r"><span class="money neg">${money(s.exp)}</span></td>
       <td class="r">${s.labor?`<span class="money" style="color:var(--warn)">${money(s.labor)}</span>`:'<span class="muted">—</span>'}</td>
       <td class="r"><span class="money ${s.profit>=0?'pos':'neg'}">${money(s.profit,true)}</span>${s.labor?`<div class="rowsub" style="color:${s.afterLabor>=0?'var(--ink-faint)':'var(--neg)'}">${esc(L("profit_after_labor"))}: ${money(s.afterLabor,true)}</div>`:(s.inc>0?`<div class="rowsub">${margin}% ${esc(L("margin"))}</div>`:"")}</td>
       <td class="r" onclick="event.stopPropagation()">${rowActions(`openProject('${p.id}')`,`confirmDel('projects','${p.id}')`)}</td></tr>`;}).join("");
-  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("project"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("budget"))}</th><th class="r">${esc(L("received"))}</th><th class="r">${esc(L("spent"))}</th><th class="r">${esc(L("labor"))}</th><th class="r">${esc(L("profit"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr>${th("projects","name",L("project"))}${th("projects","status",L("status"))}${th("projects","budget",L("budget"),"r")}${th("projects","inc",L("received"),"r")}${th("projects","exp",L("spent"),"r")}${th("projects","labor",L("labor"),"r")}${th("projects","profit",L("profit"),"r")}<th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 /* ---------- transactions ---------- */
 function txView(type){
   const isInc=type==="income",key=isInc?"incSearch":"expSearch",q=filters[key].toLowerCase();
-  let list=state.transactions.filter(t=>t.type===type).filter(t=>!q||[catLabel(t.category),t.description,projName(t.projectId),clientName(t.clientId)].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const tbl=isInc?"income":"expenses";
+  const rows=state.transactions.filter(t=>t.type===type).filter(t=>!q||[catLabel(t.category),t.description,projName(t.projectId),clientName(t.clientId)].some(v=>String(v||"").toLowerCase().includes(q))).map(t=>({t,_s:{date:t.date||"",category:catLabel(t.category),project:(projName(t.projectId)||clientName(t.clientId)||"").toLowerCase(),status:txStatus(t)||"",amount:+t.amount||0}}));
+  const list=applySort(tbl,rows,"date","desc").map(r=>r.t);
   const sum=list.reduce((a,t)=>a+(isInc?(isReceived(t)?+t.amount||0:0):+t.amount||0),0);
   const toolbar=`<div class="toolbar"><div class="search">${I.search}<input id="${isInc?'incSearch':'expSearch'}" placeholder="${esc(L("search_tx"))}" value="${esc(filters[key])}"></div><div class="totaltag">${esc(isInc?L("received"):L("total"))}: <span class="money ${isInc?'pos':'neg'}" style="margin-inline-start:6px">${money(sum)}</span></div></div>`;
   if(!list.length&&!filters[key])return toolbar+emptyState(isInc?"no_income_h":"no_expenses_h",isInc?"no_income_p":"no_expenses_p",readOnly?"":`<button class="btn ${isInc?'accent':'primary'}" onclick="openTx('${type}')">${I.plus}${esc(isInc?L("add_income"):L("add_expense"))}</button>`);
@@ -843,7 +995,7 @@ function txView(type){
       ${isInc?`<td>${st?`<span class="pill ${st}">${esc(L("st_"+st))}</span>`:""}${st==='overdue'||st==='pending'?(readOnly?"":`<button class="btn sm" style="margin-inline-start:6px;padding:4px 8px" onclick="markReceived('${t.id}')">${esc(L("mark_received"))}</button>`):""}</td>`:""}
       <td class="r"><span class="money ${isInc?'pos':'neg'}">${money(t.amount)}</span></td>
       <td class="r">${rowActions(`openTx('${type}','${t.id}')`,`confirmDel('transactions','${t.id}')`)}</td></tr>`;}).join("");
-  const head=`<tr><th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th>${esc(L("project"))}</th>${isInc?`<th>${esc(L("status"))}</th>`:""}<th class="r">${esc(L("amount"))}</th><th></th></tr>`;
+  const head=`<tr>${th(tbl,"date",L("date"))}${th(tbl,"category",L("category"))}${th(tbl,"project",L("project"))}${isInc?th(tbl,"status",L("status")):""}${th(tbl,"amount",L("amount"),"r")}<th></th></tr>`;
   return toolbar+`<div class="card"><div class="wrap"><table><thead>${head}</thead><tbody>${body||`<tr><td colspan="${isInc?6:5}" class="empty">${esc(L("no_activity"))}</td></tr>`}</tbody></table></div></div>`;
 }
 function rowActions(edit,del){if(readOnly)return"";return `<div style="display:inline-flex;gap:4px;justify-content:flex-end"><button class="close" style="width:32px;height:32px" onclick="${edit}" title="${esc(L("edit"))}">${I.edit}</button><button class="close danger" style="width:32px;height:32px" onclick="${del}" title="${esc(L("delete"))}">${I.trash}</button></div>`;}
@@ -884,15 +1036,27 @@ function tasksView(){
   const workload=active.length?`<div class="card hov" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("workload"))}</h2><span class="hint">${esc(L("open_tasks"))}</span></div>
     <div style="padding:6px 12px 12px">${active.slice().sort((a,b)=>openTaskCount(b.id)-openTaskCount(a.id)).map(m=>{const oc=openTaskCount(m.id),od=overdueTaskCount(m.id),max=Math.max(1,...active.map(x=>openTaskCount(x.id)));
     return `<div class="wkrow"><span class="mav" style="background:${safeColor(m.color)}">${esc(initials(m.name))}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-weight:600;font-size:13px">${esc(m.name)}${m.role?` <span class="muted" style="font-weight:400">· ${esc(m.role)}</span>`:""}</span><span class="amt">${oc} ${esc(L("open_tasks"))}${od?` <span style="color:var(--neg)">· ${od} ${esc(L("overdue_l"))}</span>`:""}</span></div><div class="wkbar"><i style="width:${oc/max*100}%;background:${safeColor(m.color)}"></i></div></div></div>`;}).join("")}</div></div>`:"";
-  if(!state.tasks.length&&!state.members.length)
-    return workload+emptyState("no_tasks_h","no_tasks_p",readOnly?"":`<button class="btn accent" onclick="openTask()">${I.plus}${esc(L("add_task"))}</button>`);
+  if(!state.tasks.length)
+    return emptyState("no_tasks_h","no_tasks_p",readOnly?"":`<button class="btn accent" onclick="openTask()">${I.plus}${esc(L("add_task"))}</button>`);
   const dotColor={todo:"var(--ink-faint)",doing:"var(--accent)",blocked:"var(--neg)",done:"var(--pos)"};
   const board=`<div class="board">${TASK_STATUS.map(st=>{
     const items=state.tasks.filter(t=>(t.status||"todo")===st).sort((a,b)=>String(a.dueDate||"9999").localeCompare(String(b.dueDate||"9999")));
     return `<div class="col"><div class="col-h"><span><span class="dot" style="background:${dotColor[st]}"></span>${esc(L("ts_"+st))}</span><span class="cnt">${items.length}</span></div>
       ${items.map(t=>taskCard(t)).join("")}
       ${readOnly?"":`<button class="col-add" onclick="openTask(null,'${st}')">${esc(L("add_task"))}</button>`}</div>`;}).join("")}</div>`;
-  return workload+board;
+  return board;
+}
+function teamView(){
+  const active=state.members.filter(m=>m.active!==false);
+  if(!state.members.length)return emptyState("no_members_h","no_members_p",readOnly?"":`<button class="btn accent" onclick="openMember()">${I.plus}${esc(L("add_member"))}</button>`);
+  const max=Math.max(1,...active.map(x=>openTaskCount(x.id)));
+  const rows=state.members.slice().sort((a,b)=>openTaskCount(b.id)-openTaskCount(a.id)).map(m=>{const oc=openTaskCount(m.id),od=overdueTaskCount(m.id),hrs=state.tasks.filter(t=>t.assigneeId===m.id).reduce((a,t)=>a+(Number(t.loggedHours)||0),0);
+    return `<tr><td><div class="cellflex"><span class="mav" style="background:${safeColor(m.color)};width:32px;height:32px;font-size:12px">${esc(initials(m.name))}</span><div><div class="strong">${esc(m.name)}</div><div class="rowsub">${esc(m.role||"—")}</div></div></div></td>
+      <td><div class="wkbar" style="max-width:220px"><i style="width:${oc/max*100}%;background:${safeColor(m.color)}"></i></div><div class="rowsub" style="margin-top:5px">${oc} ${esc(L("open_tasks"))}${od?` · <span style="color:var(--neg)">${od} ${esc(L("overdue_l"))}</span>`:""}</div></td>
+      <td class="r mono">${hrs?hrs.toFixed(1)+"h":'<span class="muted">—</span>'}</td>
+      <td class="r"><span class="money">${m.billableRate?fmtNum(m.billableRate,0)+" "+esc(L("curr"))+esc(L("hr")):'—'}</span><div class="rowsub">${m.costRate?esc(L("cost_rate"))+" "+fmtNum(m.costRate,0):""}</div></td>
+      <td class="r">${rowActions(`openMember('${m.id}')`,`delMember('${m.id}')`)}</td></tr>`;}).join("");
+  return `<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("member"))}</th><th>${esc(L("workload"))}</th><th class="r">${esc(L("logged_hours"))}</th><th class="r">${esc(L("billable_rate"))}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 function timerControl(t){
   if(readOnly)return t.loggedHours?`<span class="chip">${t.loggedHours}h</span>`:"";
@@ -950,20 +1114,21 @@ function projectDetail(){
 /* ---------- invoices ---------- */
 function invoicesView(){
   const isQuote=invTab==="quote";
-  const list=state.invoices.filter(i=>(i.kind||"invoice")===invTab).sort((a,b)=>(b.seq||0)-(a.seq||0));
-  const tabs=`<div class="toolbar" style="justify-content:space-between"><div class="seg"><button class="${!isQuote?'on':''}" onclick="setInvTab('invoice')">${esc(L("tab_invoices"))}</button><button class="${isQuote?'on':''}" onclick="setInvTab('quote')">${esc(L("tab_quotes"))}</button></div>
-    ${list.length?`<div style="display:flex;gap:8px">${isQuote?`<div class="totaltag">${list.length} · ${esc(L("tab_quotes"))}</div>`:(()=>{let o=0,p=0;list.forEach(inv=>{const tt=invTotal(inv);if(invStatus(inv)==="paid")p+=tt;else o+=tt;});return `<div class="totaltag">${esc(L("outstanding_inv"))}: <span class="money neg" style="margin-inline-start:6px">${money(o)}</span></div><div class="totaltag">${esc(L("paid_inv"))}: <span class="money pos" style="margin-inline-start:6px">${money(p)}</span></div>`;})()}</div>`:""}</div>`;
+  const rows=state.invoices.filter(i=>(i.kind||"invoice")===invTab).map(inv=>({inv,_s:{seq:Number(inv.seq)||0,client:(clientName(inv.clientId)||"").toLowerCase(),issueDate:inv.issueDate||"",status:invStatus(inv),total:invTotal(inv)}}));
+  const list=applySort(invTab==="quote"?"quotes":"invoices",rows,"seq","desc").map(r=>r.inv);
+  const tabs=list.length?`<div class="toolbar">${isQuote?`<div class="totaltag">${list.length} · ${esc(L("tab_quotes"))}</div>`:(()=>{let o=0,p=0;list.forEach(inv=>{const tt=invTotal(inv);if(invStatus(inv)==="paid")p+=tt;else o+=tt;});return `<div class="totaltag">${esc(L("outstanding_inv"))}: <span class="money neg" style="margin-inline-start:6px">${money(o)}</span></div><div class="totaltag">${esc(L("paid_inv"))}: <span class="money pos" style="margin-inline-start:6px">${money(p)}</span></div>`;})()}</div>`:"";
   if(!list.length)return tabs+emptyState(isQuote?"no_quotes_h":"no_invoices_h",isQuote?"no_quotes_p":"no_invoices_p",readOnly?"":`<button class="btn accent" onclick="openInvoice(null,'${invTab}')">${I.plus}${esc(isQuote?L("new_quote"):L("new_invoice"))}</button>`);
-  const body=list.map(inv=>{const st=invStatus(inv);return `<tr onclick="viewInvoice('${inv.id}')" style="cursor:pointer">
+  const tb=invTab==="quote"?"quotes":"invoices";
+  const body=list.map(inv=>{const st=invStatus(inv);return `<tr onclick="viewInvoice('${inv.id}')" ${KB} class="rowlink">
     <td><span class="strong mono">${esc(invNumber(inv))}</span></td>
     <td>${esc(clientName(inv.clientId)||L("none"))}${projName(inv.projectId)?`<div class="rowsub">${esc(projName(inv.projectId))}</div>`:""}</td>
     <td class="muted" style="white-space:nowrap">${fmtDate(inv.issueDate)}${inv.dueDate?`<div class="rowsub">${esc(L("due"))}: ${fmtDate(inv.dueDate)}</div>`:""}</td>
     <td><span class="pill ${invStPill(st)}">${esc(invStLabel(inv,st))}</span></td>
     <td class="r"><span class="money">${money(invTotal(inv))}</span></td>
     <td class="r" onclick="event.stopPropagation()">${rowActions(`openInvoice('${inv.id}')`,`confirmDel('invoices','${inv.id}')`)}</td></tr>`;}).join("");
-  return tabs+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(isQuote?L("quote_no"):L("invoice_no"))}</th><th>${esc(L("client"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+  return tabs+`<div class="card"><div class="wrap"><table><thead><tr>${th(tb,"seq",isQuote?L("quote_no"):L("invoice_no"))}${th(tb,"client",L("client"))}${th(tb,"issueDate",L("issue_date"))}${th(tb,"status",L("status"))}${th(tb,"total",L("grand_total"),"r")}<th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
-function setInvTab(k){invTab=k;justNavigated=true;render();}
+function setInvTab(k){go('money',k==="quote"?"quotes":"invoices");}
 async function convertQuote(id){const q=state.invoices.find(x=>x.id===id);if(!q)return;
   const d={kind:"invoice",seq:nextInvoiceSeq("invoice"),clientId:q.clientId,projectId:q.projectId||null,issueDate:todayISO(),dueDate:null,vatRate:q.vatRate,status:"draft",items:JSON.parse(JSON.stringify(q.items||[])),notes:q.notes||"",createdAt:new Date().toISOString()};
   try{const newId=await createInvoiceDoc(d);const qd={...q,status:"accepted",updatedAt:new Date().toISOString()};delete qd.id;await setRec("invoices",id,qd,true);toast(L("converted"));invoiceId=newId;go("invoice");}catch(e){toast((e&&e.message)||"Error");}
@@ -1050,7 +1215,7 @@ async function markInvoicePaid(id){const inv=state.invoices.find(x=>x.id===id);i
 }
 /* backup / restore */
 function exportBackup(){try{const data={app:"mizan",version:1,exportedAt:new Date().toISOString(),clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring,settings:state.settings};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="mizan-backup-"+todayISO()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);toast(L("exported"));}catch(e){toast("Export not available here");}}
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="mizan-backup-"+todayISO()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);try{localStorage.setItem("mizan_lastBackup",String(Date.now()));}catch(e){}toast(L("exported"));render();}catch(e){toast("Export not available here");}}
 let _pendingImport=null;
 function importBackupFile(input){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{let d=null;try{d=JSON.parse(r.result);}catch(e){toast("Bad file");return;}
@@ -1071,8 +1236,12 @@ function triggerImport(){const el=document.getElementById("importFile");if(el)el
 
 /* ===================== modals ===================== */
 function modalHost(){return document.getElementById("modal-host");}
-function closeModal(){modalHost().innerHTML="";}
-function shell(title,body){return `<div class="scrim" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-h"><h2>${esc(title)}</h2><button class="close" onclick="closeModal()">${I.x}</button></div><form id="mform" onsubmit="return false">${body}</form></div></div>`;}
+function closeModal(){ if(!modalHost().innerHTML)return; modalHost().innerHTML=""; restoreFocus(); try{ if(history.state&&history.state.modal){_skipPop=true;history.back();} }catch(e){} }
+function shell(title,body){
+  if(!modalHost().innerHTML){ _lastFocus=document.activeElement; try{ if(!(history.state&&history.state.modal))history.pushState({modal:true,v:view},"",location.hash||"#/"+view); }catch(e){} }
+  return `<div class="scrim" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="modal-h"><h2 id="mTitle">${esc(title)}</h2><button class="close" type="button" onclick="closeModal()" aria-label="${esc(L("cancel"))}">${I.x}</button></div><form id="mform" onsubmit="return false">${body}</form></div></div>`;
+}
+function trapTab(e){ const m=document.querySelector(".modal"); if(!m)return; const f=[...m.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex="0"]')].filter(x=>x.offsetParent!==null); if(!f.length)return; const first=f[0],last=f[f.length-1]; if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();} else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();} else if(!m.contains(document.activeElement)){e.preventDefault();first.focus();} }
 function field(id,label,html){return `<div class="field"><label for="${id}">${esc(label)}</label>${html}</div>`;}
 function foot(lbl){return `<div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn accent" id="mSubmit">${esc(lbl)}</button></div>`;}
 
@@ -1110,13 +1279,14 @@ function openTx(type,id){
   const statusSeg=isInc?`<div class="field"><label>${esc(L("payment"))}</label><div class="seg-in"><button type="button" id="st_received" class="${t.status!=='pending'?'on':''}" onclick="txStatusPick('received')">${esc(L("st_received"))}</button><button type="button" id="st_pending" class="${t.status==='pending'?'on':''}" onclick="txStatusPick('pending')">${esc(L("st_pending"))}</button></div></div>`:"";
   const dueField=isInc?`<div class="field" id="dueWrap" ${t.status==='pending'?'':'hidden'}>${`<label for="f_due">${esc(L("due_date"))}</label><input id="f_due" type="date" value="${esc(t.dueDate||"")}">`}</div>`:"";
   modalHost().innerHTML=shell(id?(isInc?L("edit_income"):L("edit_expense")):(isInc?L("new_income"):L("new_expense")),`<div class="modal-b">
-    <div class="row2">${field("f_amount",L("amount")+" ("+L("curr")+") *",`<input id="f_amount" type="number" step="0.001" min="0" required value="${t.amount!=null?esc(t.amount):""}">`)}${field("f_date",L("date"),`<input id="f_date" type="date" value="${esc(t.date||todayISO())}">`)}</div>
-    <div class="row2">${field("f_cat",L("category"),`<select id="f_cat">${cats}</select>`)}${field("f_vat",L("vat_rate")+" (%)",`<input id="f_vat" type="number" step="0.1" min="0" value="${t.taxRate!=null?esc(t.taxRate):0}">`)}</div>
+    <div class="row2">${field("f_amount",L("amount")+" ("+L("curr")+") *",`<input id="f_amount" type="number" step="0.001" min="0" required inputmode="decimal" oninput="vatHelp()" value="${t.amount!=null?esc(t.amount):""}">`)}${field("f_date",L("date"),`<input id="f_date" type="date" value="${esc(t.date||todayISO())}">`)}</div>
+    <div class="row2">${field("f_cat",L("category"),`<select id="f_cat">${cats}</select>`)}${field("f_vat",L("vat_rate")+" (%)",`<input id="f_vat" type="number" step="0.1" min="0" inputmode="decimal" oninput="vatHelp()" value="${t.taxRate!=null?esc(t.taxRate):0}">`)}</div>
+    <div id="vatHelp" class="rowsub" style="margin:-6px 0 12px;min-height:14px"></div>
     ${field("f_proj",L("project"),`<select id="f_proj">${pOpts}</select>`)}
     ${statusSeg}${dueField}
     ${field("f_desc",L("description"),`<input id="f_desc" value="${esc(t.description||"")}">`)}</div>${foot(L("save"))}`);
   window._txStatus=t.status||"received";
-  document.getElementById("f_amount").focus();
+  vatHelp();document.getElementById("f_amount").focus();
   document.getElementById("mSubmit").onclick=async()=>{const amount=num("f_amount");if(!(amount>0))return shake("f_amount");
     const pid=val("f_proj")||null,proj=pid?state.projects.find(x=>x.id===pid):null;
     const d={type,amount,date:val("f_date")||todayISO(),category:val("f_cat"),taxRate:num("f_vat"),projectId:pid,clientId:proj?proj.clientId||null:null,description:val("f_desc"),updatedAt:new Date().toISOString()};
@@ -1126,7 +1296,8 @@ function openTx(type,id){
 }
 function txStatusPick(s){window._txStatus=s;document.getElementById("st_received").classList.toggle("on",s==="received");document.getElementById("st_pending").classList.toggle("on",s==="pending");const dw=document.getElementById("dueWrap");if(dw)dw.hidden=s!=="pending";}
 async function markReceived(id){const t=state.transactions.find(x=>x.id===id);if(!t)return;const d={...t,status:"received",dueDate:null,updatedAt:new Date().toISOString()};delete d.id;await save(()=>setRec("transactions",id,d),L("saved"));}
-function openSettings(){
+function openSettings(){go('settings');}
+function openSettingsModal(){
   const s=state.settings;
   modalHost().innerHTML=shell(L("settings"),`<div class="modal-b"><p class="muted" style="margin:2px 0 14px;font-size:12.5px">${esc(L("settings_sub"))}</p>
     ${field("s_company",L("company_name"),`<input id="s_company" value="${esc(s.company||"")}" placeholder="${esc(L("appName"))}">`)}
@@ -1260,9 +1431,22 @@ function exportCSV(){
 }
 
 /* ===================== events / anim ===================== */
-function go(k){view=k;justNavigated=true;render();window.scrollTo(0,0);}
+function go(k,s){
+  if(k==="invoices"&&!s)s=invTab==="quote"?"quotes":"invoices";
+  if(LEGACY[k]){s=s||LEGACY[k][1];k=LEGACY[k][0];}
+  view=k; if(s&&SUBS[k]&&SUBS[k].includes(s))sub[k]=s;
+  if(k==="money")invTab=sub.money==="quotes"?"quote":"invoice";
+  if(modalHost().innerHTML)modalHost().innerHTML="";
+  paletteOpen=false; justNavigated=true; pushRoute(); render(); window.scrollTo(0,0);
+}
 function setLang(l){lang=l;try{localStorage.setItem("mizan_lang",l);}catch(e){}closeModal();justNavigated=true;render();}
-function toggleTheme(){theme=theme==="dark"?"light":"dark";try{localStorage.setItem("mizan_theme",theme);}catch(e){}render();}
+function setTheme(t){theme=t;try{localStorage.setItem("mizan_theme",theme);}catch(e){}render();}
+function toggleTheme(){setTheme(theme==="dark"?"light":"dark");}
+function openQuick(){
+  const items=[["invoices",L("new_invoice"),"openInvoice(null,'invoice')"],["invoices",L("new_quote"),"openInvoice(null,'quote')"],["income",L("add_income"),"openTx('income')"],["expenses",L("add_expense"),"openTx('expense')"],["tasks",L("add_task"),"openTask()"],["projects",L("add_project"),"openProject()"],["clients",L("add_client"),"openClient()"]];
+  modalHost().innerHTML=shell(L("new_l"),`<div class="modal-b"><p class="muted" style="margin:0 0 12px;font-size:12.5px">${esc(L("quick_create"))}</p><div class="qgrid">${items.map(([ic,lbl,fn],i)=>`<button type="button" class="qbtn" ${i===0?'id="qFirst"':''} onclick="${fn}">${I[ic]}<span>${esc(lbl)}</span></button>`).join("")}</div></div>`);
+  const f=document.getElementById("qFirst");if(f)f.focus();
+}
 function setMonths(m){chartMonths=m;justNavigated=true;render();}
 function setPeriod(p){reportPeriod=p;justNavigated=true;render();}
 function setDashPeriod(p){dashPeriod=p;justNavigated=true;render();}
@@ -1291,16 +1475,19 @@ function palItems(){
     qa.push({icon:I.clock,t:L("manage_recurring"),s:L("quick_actions"),run:()=>{closePalette();openRecurring();}});
   }
   qa.push({icon:I.reports,t:L("activity_log"),s:L("quick_actions"),run:()=>{closePalette();openActivity();}});
-  const nav=NAV.map(([k,ic])=>({icon:ic,t:L("nav_"+k),s:L("go_to"),run:()=>{closePalette();go(k);}}));
-  const data=[];
-  state.clients.forEach(c=>data.push({icon:I.clients,t:c.name,s:L("client"),run:()=>{closePalette();go('clients');}}));
-  state.projects.forEach(p=>data.push({icon:I.projects,t:p.name,s:L("project")+(clientName(p.clientId)?" · "+clientName(p.clientId):""),run:()=>{closePalette();go('projects');}}));
-  state.tasks.forEach(t=>data.push({icon:I.tasks,t:t.title,s:L("nav_tasks"),run:()=>{closePalette();go('tasks');}}));
-  state.invoices.forEach(inv=>data.push({icon:I.invoices,t:invNumber(inv)+" · "+(clientName(inv.clientId)||""),s:L("invoice"),run:()=>{closePalette();invoiceId=inv.id;go('invoice');}}));
+  const nav=[];
+  NAV.forEach(([k,ic,lk])=>{nav.push({icon:ic,t:L(lk),s:L("go_to"),run:()=>{closePalette();go(k);}});(SUBS[k]||[]).forEach(s=>nav.push({icon:ic,t:L(lk)+" · "+L(SUBLABEL[s]),s:L("go_to"),run:()=>{closePalette();go(k,s);}}));});
   const match=it=>!q||(it.t+" "+it.s).toLowerCase().includes(q);
-  return {quick:qa.filter(match),nav:nav.filter(match),data:data.filter(match)};
+  const data=[];
+  if(q){ const push=(it)=>{if(data.length<12&&match(it))data.push(it);};
+    state.clients.forEach(c=>push({icon:I.clients,t:c.name,s:L("client"),run:()=>{closePalette();openClientDetail(c.id);}}));
+    state.projects.forEach(p=>push({icon:I.projects,t:p.name,s:L("project")+(clientName(p.clientId)?" · "+clientName(p.clientId):""),run:()=>{closePalette();openProjectDetail(p.id);}}));
+    state.invoices.forEach(inv=>push({icon:I.invoices,t:invNumber(inv)+" · "+(clientName(inv.clientId)||""),s:inv.kind==="quote"?L("quote"):L("invoice"),run:()=>{closePalette();viewInvoice(inv.id);}}));
+    state.tasks.forEach(t=>push({icon:I.tasks,t:t.title,s:L("nav_tasks"),run:()=>{closePalette();go('tasks');setTimeout(()=>openTask(t.id),50);}}));
+  }
+  return {quick:qa.filter(match),nav:nav.filter(match),data};
 }
-function palRow(it,idx){return `<div class="pal-it ${idx===palSel?'sel':''}" onclick="palRun(${idx})"><span class="pi">${it.icon}</span><div style="min-width:0"><div class="pt">${esc(it.t)}</div><div class="ps">${esc(it.s)}</div></div></div>`;}
+function palRow(it,idx){return `<div class="pal-it ${idx===palSel?'sel':''}" onclick="palRun(${idx})" ${KB}><span class="pi">${it.icon}</span><div style="min-width:0"><div class="pt">${esc(it.t)}</div><div class="ps">${esc(it.s)}</div></div></div>`;}
 function palListHTML(){
   const g=palItems();window._palFlat=[...g.quick,...g.nav,...g.data];
   if(palSel>=window._palFlat.length)palSel=Math.max(0,window._palFlat.length-1);
@@ -1319,12 +1506,13 @@ function palKey(e){if(!paletteOpen)return;if(e.key==="ArrowDown"){e.preventDefau
 let gPend=false;
 document.addEventListener("keydown",e=>{
   if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();paletteOpen?closePalette():openPalette();return;}
+  if(modalHost().innerHTML){ if(e.key==="Escape"){e.preventDefault();closeModal();return;} if(e.key==="Tab"){trapTab(e);} if(e.key==="Enter"){const t=e.target,tag=(t&&t.tagName||"").toLowerCase(); if(tag==="input"&&t.type!=="date"){const b=document.getElementById("mSubmit");if(b){e.preventDefault();b.click();}}} return; }
   const tag=(e.target&&e.target.tagName||"").toLowerCase();const typing=tag==="input"||tag==="textarea"||tag==="select";
-  if(typing||paletteOpen||modalHost().innerHTML)return;
+  if(typing||paletteOpen)return;
   if(e.key==="/"){e.preventDefault();openPalette();return;}
   if(e.key.toLowerCase()==="g"&&!e.metaKey&&!e.ctrlKey){gPend=true;setTimeout(()=>gPend=false,800);return;}
-  if(gPend){const mp={d:"dashboard",c:"clients",p:"projects",t:"tasks",v:"invoices",i:"income",e:"expenses",r:"reports"};const k=mp[e.key.toLowerCase()];if(k)go(k);gPend=false;return;}
-  if(e.key.toLowerCase()==="n"&&!readOnly){const m={clients:openClient,projects:openProject,tasks:openTask,invoices:openInvoice,income:()=>openTx('income'),expenses:()=>openTx('expense')};if(m[view])m[view]();}
+  if(gPend){const mp={h:"dashboard",d:"dashboard",m:"money",w:"work",c:"clients",s:"settings",p:"projects",t:"tasks",v:"invoices",q:"quotes",i:"income",e:"expenses",r:"reports"};const k=mp[e.key.toLowerCase()];if(k)go(k);gPend=false;return;}
+  if(e.key.toLowerCase()==="n"&&!readOnly){const m={clients:openClient,projects:openProject,tasks:openTask,team:openMember,invoices:()=>openInvoice(null,'invoice'),quotes:()=>openInvoice(null,'quote'),income:()=>openTx('income'),expenses:()=>openTx('expense'),dashboard:openQuick};const f=m[viewKey()];if(f)f();}
 });
 function countUp(){
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
@@ -1342,6 +1530,7 @@ let toastTimer;
 function toast(m){const el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2400);}
 
 /* ===================== boot ===================== */
+applyHash();try{history.replaceState({v:view},"",routeHash());}catch(e){}
 render();
 initStore();
 </script>
