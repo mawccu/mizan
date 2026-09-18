@@ -241,6 +241,11 @@
   .col-add:hover{border-color:var(--accent);color:var(--accent)}
   .wkrow{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--r-mid)} .wkrow:hover{background:var(--surface-2)}
   .wkbar{flex:1;height:7px;border-radius:20px;background:var(--surface-3);overflow:hidden} .wkbar i{display:block;height:100%;transition:width .7s var(--ease)}
+  .tbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);border-radius:5px;padding:3px 7px;font-size:10.5px;font-weight:600;font-family:var(--disp)}
+  .tbtn svg{width:10px;height:10px} .tbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .tbtn.run{background:var(--pos-soft);border-color:transparent;color:var(--pos)}
+  .tbtn .rd{width:7px;height:7px;border-radius:2px;background:var(--pos);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.35}}
   .ivrow{display:grid;grid-template-columns:1fr 58px 82px 28px;gap:6px;margin-bottom:6px;align-items:center}
   #invItems input{width:100%;padding:8px 9px;border:1px solid var(--line-2);border-radius:5px;background:var(--surface-2);color:var(--ink)}
   #invItems input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
@@ -367,6 +372,9 @@ const T={
   search_all:"Search or jump to…",quick_actions:"Quick actions",go_to:"Go to",no_results:"No results",shortcuts:"Shortcuts",cmd_hint:"⌘K",
   backup:"Backup & restore",export_backup:"Export backup",import_backup:"Import backup",import_confirm:"Replace all current data with this backup file?",restored:"Backup restored",exported:"Backup exported",
   over_budget:"Over budget",dash_period:"Period",
+  start_timer:"Start",stop_timer:"Stop",running:"running",log_time:"Log time",pull_hours:"Pull billable hours",unbilled:"unbilled",billed:"billed",no_unbilled:"No unbilled hours for this client.",
+  labor:"Labor cost",est_labor:"Est. labor",profit_after_labor:"Profit after labor",gross_profit:"Gross profit",
+  statement:"Statement",client_statement:"Client statement",project_overview:"Project overview",total_invoiced:"Invoiced",total_paid:"Paid",ledger:"Ledger",overview:"Overview",no_tx:"No transactions yet.",contact:"Contact",tag:"Tags",tags_ph:"e.g. urgent, design",filter:"Filter",my_open:"Open",all_tasks:"All",
  },
  ar:{appName:"ميزان",tagline:"حسابات الشركة",
   nav_dashboard:"الرئيسية",nav_clients:"العملاء",nav_projects:"المشاريع",nav_income:"الإيرادات",nav_expenses:"المصروفات",nav_reports:"التقارير",
@@ -419,6 +427,9 @@ const T={
   search_all:"ابحث أو انتقل…",quick_actions:"إجراءات سريعة",go_to:"انتقل إلى",no_results:"لا نتائج",shortcuts:"اختصارات",cmd_hint:"⌘K",
   backup:"نسخ احتياطي واستعادة",export_backup:"تصدير نسخة",import_backup:"استيراد نسخة",import_confirm:"استبدال كل البيانات الحالية بهذا الملف؟",restored:"تمت الاستعادة",exported:"تم التصدير",
   over_budget:"تجاوز الميزانية",dash_period:"الفترة",
+  start_timer:"ابدأ",stop_timer:"إيقاف",running:"قيد التشغيل",log_time:"تسجيل وقت",pull_hours:"سحب الساعات القابلة للفوترة",unbilled:"غير مفوترة",billed:"مفوترة",no_unbilled:"لا توجد ساعات غير مفوترة لهذا العميل.",
+  labor:"تكلفة العمالة",est_labor:"العمالة التقديرية",profit_after_labor:"الربح بعد العمالة",gross_profit:"الربح الإجمالي",
+  statement:"كشف حساب",client_statement:"كشف حساب العميل",project_overview:"نظرة عامة على المشروع",total_invoiced:"مفوتر",total_paid:"مدفوع",ledger:"دفتر الأستاذ",overview:"نظرة عامة",no_tx:"لا توجد حركات بعد.",contact:"التواصل",tag:"وسوم",tags_ph:"مثال: عاجل، تصميم",filter:"تصفية",my_open:"مفتوحة",all_tasks:"الكل",
  }
 };
 const INCOME_CATS=["deposit","payment","final","retainer","other"];
@@ -435,8 +446,8 @@ function catLabel(c){return L("cat_"+c)||c;}
 
 /* ===================== state / store ===================== */
 const state={clients:[],projects:[],transactions:[],members:[],tasks:[],invoices:[],settings:{company:"",vatRate:16,tin:"",address:""}};
-let view="dashboard",readOnly=false,backend="loading",dbCap=null,userCap=null,chartMonths=6,reportPeriod="month",dashPeriod="all",invoiceId=null;
-let justNavigated=true,paletteOpen=false;
+let view="dashboard",readOnly=false,backend="loading",dbCap=null,userCap=null,chartMonths=6,reportPeriod="month",dashPeriod="all",invoiceId=null,detailId=null,taskFilter="all";
+let justNavigated=true,paletteOpen=false,timerTick=null;
 const filters={clientSearch:"",projSearch:"",incSearch:"",expSearch:"",projStatus:"all"};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 
@@ -473,7 +484,11 @@ function isReceived(t){return t.type==="income" && t.status!=="pending";}
 function isOverdue(t){return t.type==="income" && t.status==="pending" && t.dueDate && t.dueDate<todayISO();}
 function txStatus(t){ if(t.type!=="income")return null; if(t.status!=="pending")return"received"; return isOverdue(t)?"overdue":"pending"; }
 function taxOf(t){const r=Number(t.taxRate)||0; if(!r)return 0; const amt=Number(t.amount)||0; return amt-amt/(1+r/100);}
-function projStats(pid){let inc=0,exp=0;for(const t of state.transactions){if(t.projectId!==pid)continue;if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;}else exp+=+t.amount||0;}return{inc,exp,profit:inc-exp};}
+function memberCostRate(id){const m=memberById(id);return m?(Number(m.costRate)||0):0;}
+function memberBillRate(id){const m=memberById(id);return m?(Number(m.billableRate)||0):0;}
+function projLabor(pid){let lab=0;for(const t of state.tasks){if(t.projectId!==pid)continue;lab+=(Number(t.loggedHours)||0)*memberCostRate(t.assigneeId);}return lab;}
+function projStats(pid){let inc=0,exp=0;for(const t of state.transactions){if(t.projectId!==pid)continue;if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;}else exp+=+t.amount||0;}const labor=projLabor(pid);return{inc,exp,profit:inc-exp,labor,afterLabor:inc-exp-labor};}
+function unbilledTasksForClient(clientId){return state.tasks.filter(t=>t.billable&&!t.billed&&(Number(t.loggedHours)||0)>0&&(t.clientId===clientId||(t.projectId&&(state.projects.find(p=>p.id===t.projectId)||{}).clientId===clientId)));}
 function totals(list){list=list||state.transactions;let inc=0,exp=0,out=0;for(const t of list){if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;else out+=+t.amount||0;}else exp+=+t.amount||0;}return{inc,exp,net:inc-exp,out};}
 function periodStart(key){const n=new Date();if(key==="month")return new Date(n.getFullYear(),n.getMonth(),1);if(key==="quarter")return new Date(n.getFullYear(),Math.floor(n.getMonth()/3)*3,1);if(key==="year")return new Date(n.getFullYear(),0,1);return null;}
 function inPeriod(t,key){const s=periodStart(key);if(!s)return true;return new Date(t.date+"T00:00:00")>=s;}
@@ -505,6 +520,7 @@ const I={
  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>',
  invoices:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M14 2v5h5"/><path d="M8 13h8M8 17h5"/></svg>',
  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+ play:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>',
  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.5-3.5"/></svg>',
@@ -541,7 +557,14 @@ function render(){
   bindInputs();
   if(paletteOpen){const pi=document.getElementById("palInput");if(pi)pi.focus();}
   if(justNavigated){ countUp(); justNavigated=false; }
+  manageTimerTick();
 }
+function taskRunning(t){return !!t.timerStart;}
+function elapsedHours(t){return t.timerStart?(Date.now()-new Date(t.timerStart).getTime())/3600000:0;}
+async function startTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;const d={...t,timerStart:new Date().toISOString(),status:t.status==="todo"?"doing":(t.status||"doing"),updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d);}
+async function stopTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t||!t.timerStart)return;const d={...t,loggedHours:Math.round(((Number(t.loggedHours)||0)+elapsedHours(t))*100)/100,timerStart:null,updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d);}
+function updateTimers(){document.querySelectorAll("[data-tstart]").forEach(el=>{const s=el.getAttribute("data-tstart"),base=Number(el.getAttribute("data-base"))||0;el.textContent=(base+(Date.now()-new Date(s).getTime())/3600000).toFixed(2)+"h";});}
+function manageTimerTick(){const any=state.tasks.some(t=>t.timerStart);if(any&&!timerTick){timerTick=setInterval(updateTimers,1000);updateTimers();}else if(!any&&timerTick){clearInterval(timerTick);timerTick=null;}}
 function rail(){
   return `<aside class="rail"><div class="rail-logo">${I.logo}</div>
     <nav class="rail-nav">${NAV.map(([k,ic])=>`<button class="rbtn ${view===k?'on':''}" onclick="go('${k}')" aria-label="${esc(L('nav_'+k))}">${ic}<span class="tip">${esc(L('nav_'+k))}</span></button>`).join("")}</nav>
@@ -566,6 +589,9 @@ function botnav(){return `<nav class="botnav">${NAV.map(([k,ic])=>`<button class
 
 function topbar(){
   const map={dashboard:["dashboard","overview_sub"],clients:["clients","clients_sub"],projects:["projects","projects_sub"],tasks:["tasks","tasks_sub"],invoices:["invoices","invoices_sub"],income:["income","income_sub"],expenses:["expenses","expenses_sub"],reports:["reports","reports_sub"]};
+  if(view==="client"||view==="project"){const isC=view==="client";const ent=isC?state.clients.find(x=>x.id===detailId):state.projects.find(x=>x.id===detailId);
+    const act=`<button class="btn" onclick="go('${isC?'clients':'projects'}')">${esc(L("back"))}</button>${!readOnly&&ent?`<button class="btn" onclick="${isC?`openClient('${detailId}')`:`openProject('${detailId}')`}">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print"))}</button>`;
+    return `<div class="topbar"><div><h1>${ent?esc(ent.name):"—"}</h1><div class="sub">${isC?esc(L("client_statement")):esc(clientName(ent&&ent.clientId)||L("project_overview"))}</div></div><div class="topcluster no-print">${act}</div></div>`;}
   if(view==="invoice"){const inv=state.invoices.find(x=>x.id===invoiceId);
     const act=`<button class="btn" onclick="go('invoices')">${esc(L("back"))}</button>${!readOnly&&inv&&invStatus(inv)!=='paid'?`<button class="btn" onclick="markInvoicePaid('${invoiceId}')">${I.check}${esc(L("mark_paid"))}</button>`:""}${!readOnly&&inv?`<button class="btn" onclick="openInvoice('${invoiceId}')">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print_invoice"))}</button>`;
     return `<div class="topbar"><div><h1>${inv?esc(invNumber(inv)):esc(L("invoice"))}</h1><div class="sub">${inv?esc(clientName(inv.clientId)||"")+" · "+fmtDate(inv.issueDate):""}</div></div><div class="topcluster no-print">${act}</div></div>`;
@@ -589,6 +615,8 @@ function renderView(){
   if(view==="clients")return clientsView();
   if(view==="projects")return projectsView();
   if(view==="tasks")return tasksView();
+  if(view==="client")return clientDetail();
+  if(view==="project")return projectDetail();
   if(view==="invoices")return invoicesView();
   if(view==="invoice")return invoiceDetail();
   if(view==="income")return txView("income");
@@ -682,11 +710,11 @@ function clientsView(){
   const toolbar=`<div class="toolbar"><div class="search">${I.search}<input id="clientSearch" placeholder="${esc(L("search_clients"))}" value="${esc(filters.clientSearch)}"></div></div>`;
   if(!state.clients.length)return toolbar+emptyState("no_clients_h","no_clients_p",readOnly?"":`<button class="btn accent" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`);
   const body=list.map(c=>{const pc=state.projects.filter(p=>p.clientId===c.id).length;let billed=0;for(const t of state.transactions){if(t.clientId===c.id&&t.type==="income"&&isReceived(t))billed+=+t.amount||0;}
-    return `<tr><td><div class="cellflex"><span class="avatar">${esc(initials(c.name))}</span><div><div class="strong">${esc(c.name)}</div><div class="rowsub">${esc(c.company||"—")}</div></div></div></td>
+    return `<tr onclick="openClientDetail('${c.id}')" style="cursor:pointer"><td><div class="cellflex"><span class="avatar">${esc(initials(c.name))}</span><div><div class="strong">${esc(c.name)}</div><div class="rowsub">${esc(c.company||"—")}</div></div></div></td>
       <td>${c.phone?esc(c.phone):'<span class="muted">—</span>'}${c.email?`<div class="rowsub">${esc(c.email)}</div>`:""}</td>
       <td class="r"><span class="tag">${pc} ${esc(L("projects_count"))}</span></td>
       <td class="r"><span class="money pos">${money(billed)}</span></td>
-      <td class="r">${rowActions(`openClient('${c.id}')`,`confirmDel('clients','${c.id}')`)}</td></tr>`;}).join("");
+      <td class="r" onclick="event.stopPropagation()">${rowActions(`openClient('${c.id}')`,`confirmDel('clients','${c.id}')`)}</td></tr>`;}).join("");
   return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("name"))}</th><th>${esc(L("phone"))}</th><th class="r">${esc(L("projects_count"))}</th><th class="r">${esc(L("billed"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 /* ---------- projects ---------- */
@@ -697,13 +725,14 @@ function projectsView(){
     <div class="seg"><button class="${filters.projStatus==='all'?'on':''}" onclick="setProjStatus('all')">${esc(L("all"))}</button>${STATUSES.map(s=>`<button class="${filters.projStatus===s?'on':''}" onclick="setProjStatus('${s}')">${esc(L("st_"+s))}</button>`).join("")}</div></div>`;
   if(!state.projects.length)return toolbar+emptyState("no_projects_h","no_projects_p",readOnly?"":`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`);
   const body=list.map(p=>{const s=projStats(p.id),budget=+p.budget||0,pct=budget>0?Math.min(100,Math.round(s.inc/budget*100)):0,margin=s.inc>0?Math.round(s.profit/s.inc*100):0,bs=budgetState(p);
-    return `<tr><td><div class="strong">${esc(p.name)}</div><div class="rowsub">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></td>
+    return `<tr onclick="openProjectDetail('${p.id}')" style="cursor:pointer"><td><div class="strong">${esc(p.name)}</div><div class="rowsub">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></td>
       <td><span class="pill ${p.status||'active'}">${esc(L("st_"+(p.status||"active")))}</span></td>
       <td class="r"><span class="money">${budget?money(budget):'—'}</span>${budget?`<div class="rowsub" style="color:${bs==='over'?'var(--neg)':bs==='full'?'var(--pos)':'var(--ink-faint)'}">${bs==='over'?'⚠ '+esc(L("over_budget")):pct+"% "+esc(L("collected"))}</div>`:""}</td>
       <td class="r"><span class="money pos">${money(s.inc)}</span></td><td class="r"><span class="money neg">${money(s.exp)}</span></td>
-      <td class="r"><span class="money ${s.profit>=0?'pos':'neg'}">${money(s.profit,true)}</span>${s.inc>0?`<div class="rowsub">${margin}% ${esc(L("margin"))}</div>`:""}</td>
-      <td class="r">${rowActions(`openProject('${p.id}')`,`confirmDel('projects','${p.id}')`)}</td></tr>`;}).join("");
-  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("project"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("budget"))}</th><th class="r">${esc(L("received"))}</th><th class="r">${esc(L("spent"))}</th><th class="r">${esc(L("profit"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+      <td class="r">${s.labor?`<span class="money" style="color:var(--warn)">${money(s.labor)}</span>`:'<span class="muted">—</span>'}</td>
+      <td class="r"><span class="money ${s.profit>=0?'pos':'neg'}">${money(s.profit,true)}</span>${s.labor?`<div class="rowsub" style="color:${s.afterLabor>=0?'var(--ink-faint)':'var(--neg)'}">${esc(L("profit_after_labor"))}: ${money(s.afterLabor,true)}</div>`:(s.inc>0?`<div class="rowsub">${margin}% ${esc(L("margin"))}</div>`:"")}</td>
+      <td class="r" onclick="event.stopPropagation()">${rowActions(`openProject('${p.id}')`,`confirmDel('projects','${p.id}')`)}</td></tr>`;}).join("");
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("project"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("budget"))}</th><th class="r">${esc(L("received"))}</th><th class="r">${esc(L("spent"))}</th><th class="r">${esc(L("labor"))}</th><th class="r">${esc(L("profit"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
 /* ---------- transactions ---------- */
 function txView(type){
@@ -770,6 +799,11 @@ function tasksView(){
       ${readOnly?"":`<button class="col-add" onclick="openTask(null,'${st}')">${esc(L("add_task"))}</button>`}</div>`;}).join("")}</div>`;
   return workload+board;
 }
+function timerControl(t){
+  if(readOnly)return t.loggedHours?`<span class="chip">${t.loggedHours}h</span>`:"";
+  if(taskRunning(t))return `<button class="tbtn run" onclick="event.stopPropagation();stopTimer('${t.id}')"><span class="rd"></span><span data-tstart="${esc(t.timerStart)}" data-base="${Number(t.loggedHours)||0}">${(Number(t.loggedHours)||0).toFixed(2)}h</span></button>`;
+  return `<button class="tbtn" onclick="event.stopPropagation();startTimer('${t.id}')">${I.play}${t.loggedHours?(t.loggedHours+"h"):esc(L("start_timer"))}</button>`;
+}
 function taskCard(t){
   const prColor={none:"transparent",low:"var(--ink-faint)",medium:"var(--warn)",high:"var(--neg)"};
   const od=taskOverdue(t),pn=projName(t.projectId),m=memberById(t.assigneeId);
@@ -778,9 +812,44 @@ function taskCard(t){
     <div class="meta">
       ${pn?`<span class="chip">${esc(pn)}</span>`:""}
       ${t.dueDate?`<span class="chip ${od?'od':'due'}">${od?'⚠ ':''}${fmtDate(t.dueDate)}</span>`:""}
-      ${t.loggedHours?`<span class="chip">${t.loggedHours}h</span>`:""}
+      ${(t.tags&&t.tags.length)?t.tags.slice(0,2).map(tg=>`<span class="chip" style="color:var(--accent-4)">#${esc(tg)}</span>`).join(""):""}
+      ${timerControl(t)}
       ${m?`<span class="mav" style="background:${m.color||'#5a6270'}" title="${esc(m.name)}">${esc(initials(m.name))}</span>`:`<span class="mav" style="background:var(--surface-3);color:var(--ink-faint)" title="${esc(L('unassigned'))}">?</span>`}
     </div></div>`;
+}
+
+/* ---------- client / project detail ---------- */
+function openClientDetail(id){detailId=id;go('client');}
+function openProjectDetail(id){detailId=id;go('project');}
+function dstat(lbl,val,color,sub){return `<div class="stat"><div class="top">${esc(lbl)}</div><div class="big"><span class="money" style="color:${color||'var(--ink)'}">${typeof val==='number'?money(val):val}</span></div>${sub?`<div class="rowsub" style="margin-top:5px">${sub}</div>`:""}</div>`;}
+function clientDetail(){
+  const c=state.clients.find(x=>x.id===detailId);if(!c)return emptyState("no_clients_h","no_clients_p","");
+  const invs=state.invoices.filter(i=>i.clientId===c.id).sort((a,b)=>(b.seq||0)-(a.seq||0));
+  const txs=state.transactions.filter(t=>t.clientId===c.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  let invoiced=0,outI=0;invs.forEach(i=>{const tt=invTotal(i);invoiced+=tt;if(invStatus(i)!=="paid")outI+=tt;});
+  let received=0,pending=0;txs.forEach(t=>{if(t.type==="income"){if(isReceived(t))received+=+t.amount||0;else pending+=+t.amount||0;}});
+  const head=`<div class="card" style="padding:20px 22px;margin-bottom:15px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;align-items:center">
+    <div style="display:flex;gap:14px;align-items:center"><span class="avatar" style="width:48px;height:48px;font-size:16px">${esc(initials(c.name))}</span><div><div style="font-family:var(--disp);font-weight:700;font-size:18px">${esc(c.name)}</div><div class="muted" style="font-size:13px">${esc(c.company||"—")}</div></div></div>
+    <div class="muted" style="font-size:12.5px;text-align:end">${c.email?esc(c.email)+"<br>":""}${c.phone?esc(c.phone):""}</div></div></div>`;
+  const kpis=`<div class="stat3" style="margin-bottom:15px">${dstat(L("total_invoiced"),invoiced)}${dstat(L("received"),received,'var(--pos)')}${dstat(L("outstanding"),outI+pending,'var(--warn)')}</div>`;
+  const invTable=invs.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("invoices"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("invoice_no"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th></tr></thead><tbody>${invs.map(i=>{const st=invStatus(i),cls={paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold"}[st];return `<tr onclick="viewInvoice('${i.id}')" style="cursor:pointer"><td class="mono strong">${esc(invNumber(i))}</td><td class="muted">${fmtDate(i.issueDate)}</td><td><span class="pill ${cls}">${esc(L("iv_"+st))}</span></td><td class="r money">${money(invTotal(i))}</td></tr>`;}).join("")}</tbody></table></div></div>`:"";
+  const ledger=`<div class="card"><div class="card-h"><h2>${esc(L("ledger"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th>${esc(L("project"))}</th><th class="r">${esc(L("amount"))}</th></tr></thead><tbody>${txs.length?txs.map(t=>`<tr><td class="muted">${fmtDate(t.date)}</td><td>${esc(catLabel(t.category))}${t.type==='income'&&t.status==='pending'?` <span class="pill pending" style="font-size:9.5px;padding:2px 6px">${esc(L("st_pending"))}</span>`:""}</td><td>${projName(t.projectId)?esc(projName(t.projectId)):'<span class="muted">—</span>'}</td><td class="r"><span class="money ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'−'}${money(t.amount).replace('−','')}</span></td></tr>`).join(""):`<tr><td colspan="4" class="empty">${esc(L("no_tx"))}</td></tr>`}</tbody></table></div></div>`;
+  return head+kpis+invTable+ledger;
+}
+function projectDetail(){
+  const p=state.projects.find(x=>x.id===detailId);if(!p)return emptyState("no_projects_h","no_projects_p","");
+  const s=projStats(p.id),budget=+p.budget||0,pct=budget>0?Math.round(s.inc/budget*100):0;
+  const txs=state.transactions.filter(t=>t.projectId===p.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const tks=state.tasks.filter(t=>t.projectId===p.id);
+  const head=`<div class="card" style="padding:20px 22px;margin-bottom:15px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center">
+    <div><div style="font-family:var(--disp);font-weight:700;font-size:18px">${esc(p.name)}</div><div class="muted" style="font-size:13px">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></div>
+    <span class="pill ${p.status||'active'}">${esc(L("st_"+(p.status||"active")))}</span></div>
+    ${budget?`<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span class="muted">${esc(L("budget"))}: ${money(budget)}</span><span class="muted">${pct}% ${esc(L("collected"))}</span></div><div style="height:9px;border-radius:20px;background:var(--surface-3);overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,pct)}%;background:${s.inc>budget?'var(--pos)':'var(--accent)'};transition:width .7s var(--ease)"></i></div></div>`:""}</div>`;
+  const kpis=`<div class="stat3" style="margin-bottom:15px">${dstat(L("received"),s.inc,'var(--pos)')}${dstat(L("spent"),s.exp,'var(--neg)')}${dstat(L("profit"),s.profit,s.profit>=0?'var(--pos)':'var(--neg)',s.labor?`${esc(L("est_labor"))} ${money(s.labor)} · ${esc(L("profit_after_labor"))} ${money(s.afterLabor,true)}`:"")}</div>`;
+  const stCls={done:"received",blocked:"overdue",doing:"completed",todo:"on_hold"};
+  const taskList=tks.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("nav_tasks"))}</h2><span class="hint">${tks.filter(t=>t.status!=='done').length} ${esc(L("open_tasks"))}</span></div><div class="list">${tks.map(t=>{const m=memberById(t.assigneeId);return `<div class="lrow" onclick="go('tasks')" style="cursor:pointer"><span class="mav" style="background:${m?m.color||'#5a6270':'var(--surface-3)'};color:${m?'#fff':'var(--ink-faint)'}">${m?esc(initials(m.name)):'?'}</span><div class="mid"><div class="t">${esc(t.title)}</div><div class="s">${m?esc(m.name):esc(L("unassigned"))}${t.loggedHours?` · ${t.loggedHours}h`:""}</div></div><span class="pill ${stCls[t.status||'todo']}" style="font-size:10px">${esc(L("ts_"+(t.status||'todo')))}</span></div>`;}).join("")}</div></div>`:"";
+  const ledger=`<div class="card"><div class="card-h"><h2>${esc(L("ledger"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th class="r">${esc(L("amount"))}</th></tr></thead><tbody>${txs.length?txs.map(t=>`<tr><td class="muted">${fmtDate(t.date)}</td><td>${esc(catLabel(t.category))}</td><td class="r"><span class="money ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'−'}${money(t.amount).replace('−','')}</span></td></tr>`).join(""):`<tr><td colspan="3" class="empty">${esc(L("no_tx"))}</td></tr>`}</tbody></table></div></div>`;
+  return head+kpis+taskList+ledger;
 }
 
 /* ---------- invoices ---------- */
@@ -835,7 +904,7 @@ function invItemChange(i,f,v){if(window._invItems[i]){window._invItems[i][f]=v;i
 function invRecalc(){const sub=window._invItems.reduce((a,it)=>a+(Number(it.qty)||0)*(Number(it.rate)||0),0);const vr=num("iv_vat");const el=document.getElementById("invTotals");if(el)el.textContent=fmtNum(sub*(1+vr/100))+" "+L("curr");}
 function openInvoice(id){
   const inv=id?state.invoices.find(x=>x.id===id):{items:[{desc:"",qty:1,rate:0}],vatRate:state.settings.vatRate,issueDate:todayISO(),status:"draft"};
-  window._invItems=JSON.parse(JSON.stringify(inv.items&&inv.items.length?inv.items:[{desc:"",qty:1,rate:0}]));
+  window._invItems=JSON.parse(JSON.stringify(inv.items&&inv.items.length?inv.items:[{desc:"",qty:1,rate:0}]));window._invBillTasks=[];
   const cOpts=`<option value="">${esc(L("none"))}</option>`+state.clients.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(c=>`<option value="${c.id}" ${inv.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
   const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${inv.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
   const stOpts=["draft","sent","paid"].map(s=>`<option value="${s}" ${(inv.status||"draft")===s?"selected":""}>${esc(L("iv_"+s))}</option>`).join("");
@@ -844,7 +913,7 @@ function openInvoice(id){
     <div class="row3">${field("iv_issue",L("issue_date"),`<input id="iv_issue" type="date" value="${esc(inv.issueDate||todayISO())}">`)}${field("iv_due",L("due"),`<input id="iv_due" type="date" value="${esc(inv.dueDate||"")}">`)}${field("iv_status",L("status"),`<select id="iv_status">${stOpts}</select>`)}</div>
     <label style="font-size:12.5px;font-weight:600;color:var(--ink-soft)">${esc(L("line_items"))}</label>
     <div id="invItems" style="margin:7px 0 4px">${invItemsHTML()}</div>
-    <button type="button" class="col-add" style="margin-bottom:12px" onclick="invAddItem()">+ ${esc(L("add_item"))}</button>
+    <div style="display:flex;gap:8px;margin-bottom:12px"><button type="button" class="col-add" style="flex:1" onclick="invAddItem()">+ ${esc(L("add_item"))}</button><button type="button" class="col-add" style="flex:1" onclick="invPullHours()">${esc(L("pull_hours"))}</button></div>
     <div class="row2">${field("iv_vat",L("vat_amount")+" (%)",`<input id="iv_vat" type="number" step="0.1" min="0" value="${inv.vatRate!=null?esc(inv.vatRate):esc(state.settings.vatRate)}" oninput="invRecalc()">`)}<div class="field"><label>${esc(L("grand_total"))}</label><div id="invTotals" class="mono" style="padding:11px 13px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface-2);font-weight:700"></div></div></div>
     ${field("iv_notes",L("terms"),`<textarea id="iv_notes">${esc(inv.notes||"")}</textarea>`)}</div>${foot(L("save"))}`);
   invRecalc();document.getElementById("iv_client").focus();
@@ -852,8 +921,13 @@ function openInvoice(id){
     const items=window._invItems.filter(it=>(it.desc||"").trim()||Number(it.qty)||Number(it.rate)).map(it=>({desc:it.desc||"",qty:Number(it.qty)||0,rate:Number(it.rate)||0}));
     const d={seq:inv.seq||nextInvoiceSeq(),clientId:cid,projectId:val("iv_proj")||null,issueDate:val("iv_issue")||todayISO(),dueDate:val("iv_due")||null,vatRate:num("iv_vat"),status:val("iv_status"),items,notes:val("iv_notes"),updatedAt:new Date().toISOString()};
     if(inv.paidTransactionId)d.paidTransactionId=inv.paidTransactionId;if(!id)d.createdAt=new Date().toISOString();
-    await save(()=>id?setRec("invoices",id,d):addRec("invoices",d));};
+    const b=document.getElementById("mSubmit");b.disabled=true;b.style.opacity=".6";
+    try{ if(id)await setRec("invoices",id,d);else await addRec("invoices",d);
+      for(const tid of (window._invBillTasks||[])){const tk=state.tasks.find(x=>x.id===tid);if(tk&&!tk.billed){const td={...tk,billed:true,updatedAt:new Date().toISOString()};delete td.id;try{await setRec("tasks",tid,td);}catch(e){}}}
+      closeModal();toast(L("saved"));
+    }catch(e){b.disabled=false;b.style.opacity="1";if(e&&e.code==="invalid_argument"){readOnly=true;closeModal();render();toast(L("readonly_note"));}else toast((e&&e.message)||"Error");}};
 }
+function invPullHours(){const cid=val("iv_client");if(!cid){shake("iv_client");return;}const tasks=unbilledTasksForClient(cid);if(!tasks.length){toast(L("no_unbilled"));return;}window._invBillTasks=window._invBillTasks||[];tasks.forEach(t=>{const hrs=Number(t.loggedHours)||0;window._invItems.push({desc:t.title+" ("+hrs+"h)",qty:hrs,rate:memberBillRate(t.assigneeId)});window._invBillTasks.push(t.id);});document.getElementById("invItems").innerHTML=invItemsHTML();invRecalc();toast(tasks.length+" · "+L("unbilled"));}
 async function markInvoicePaid(id){const inv=state.invoices.find(x=>x.id===id);if(!inv)return;
   const d={...inv,status:"paid",updatedAt:new Date().toISOString()};delete d.id;
   try{
@@ -958,12 +1032,14 @@ function openTask(id,presetStatus){
     <div class="row3">${field("f_tstatus",L("status"),`<select id="f_tstatus">${stOpts}</select>`)}${field("f_tpr",L("priority"),`<select id="f_tpr">${prOpts}</select>`)}${field("f_tdue",L("due"),`<input id="f_tdue" type="date" value="${esc(t.dueDate||"")}">`)}</div>
     <div class="row2">${field("f_thours",L("logged_hours"),`<input id="f_thours" type="number" step="0.25" min="0" value="${t.loggedHours!=null?esc(t.loggedHours):""}">`)}
       <div class="field"><label>${esc(L("billable"))}</label><div class="seg-in"><button type="button" id="bi_yes" class="${t.billable?'on':''}" onclick="taskBill(1)">${esc(L("billable"))}</button><button type="button" id="bi_no" class="${t.billable?'':'on'}" onclick="taskBill(0)">${esc(L("pr_none"))}</button></div></div></div>
+    ${field("f_ttags",L("tag"),`<input id="f_ttags" value="${esc((t.tags||[]).join(", "))}" placeholder="${esc(L("tags_ph"))}">`)}
     ${field("f_tnotes",L("notes"),`<textarea id="f_tnotes">${esc(t.notes||"")}</textarea>`)}</div>${foot(L("save"))}`);
   window._taskBill=!!t.billable;
   document.getElementById("f_title").focus();
   document.getElementById("mSubmit").onclick=async()=>{const title=val("f_title");if(!title)return shake("f_title");
     const pid=val("f_tproj")||null,proj=pid?state.projects.find(x=>x.id===pid):null;
-    const d={title,assigneeId:val("f_tassignee")||null,projectId:pid,clientId:proj?proj.clientId||null:null,status:val("f_tstatus"),priority:val("f_tpr"),dueDate:val("f_tdue")||null,loggedHours:num("f_thours"),billable:!!window._taskBill,notes:val("f_tnotes"),updatedAt:new Date().toISOString()};if(!id)d.createdAt=new Date().toISOString();
+    const d={title,assigneeId:val("f_tassignee")||null,projectId:pid,clientId:proj?proj.clientId||null:null,status:val("f_tstatus"),priority:val("f_tpr"),dueDate:val("f_tdue")||null,loggedHours:num("f_thours"),billable:!!window._taskBill,tags:(val("f_ttags")||"").split(",").map(s=>s.trim()).filter(Boolean),notes:val("f_tnotes"),updatedAt:new Date().toISOString()};
+    if(t.timerStart)d.timerStart=t.timerStart;if(t.billed)d.billed=t.billed;if(!id)d.createdAt=new Date().toISOString();
     await save(()=>id?setRec("tasks",id,d):addRec("tasks",d));};
 }
 function taskBill(v){window._taskBill=!!v;document.getElementById("bi_yes").classList.toggle("on",!!v);document.getElementById("bi_no").classList.toggle("on",!v);}
