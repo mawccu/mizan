@@ -91,7 +91,8 @@
   .main{min-width:0;padding:22px 26px 44px;max-width:1520px}
   .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
   .topbar h1{font-size:22px} .topbar .sub{color:var(--ink-soft);font-size:13px;margin-top:3px;font-weight:400}
-  .topcluster{display:flex;align-items:center;gap:9px}
+  .topcluster{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+  .lt-desktop{display:inline-flex;align-items:center;gap:9px}
 
   .btn{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:10px 15px;border-radius:7px;
     font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-family:var(--disp);
@@ -285,6 +286,8 @@
   .toast{position:fixed;inset-block-end:24px;inset-inline:0;margin-inline:auto;width:max-content;max-width:90%;background:var(--ink);color:var(--canvas);padding:12px 20px;border-radius:8px;font-weight:600;font-size:13.5px;box-shadow:var(--shadow);z-index:80;opacity:0;transform:translateY(12px);transition:.3s var(--ease);pointer-events:none;font-family:var(--disp)}
   .toast.show{opacity:1;transform:translateY(0)}
   .banner{background:var(--warn-soft);color:var(--warn);border-radius:7px;padding:11px 15px;font-size:12.5px;font-weight:500;margin-bottom:16px;display:flex;gap:9px;align-items:center}
+  .banner.danger{background:var(--neg-soft);color:var(--neg);border:1px solid var(--neg)}
+  .banner .btn{color:inherit;border-color:currentColor;background:transparent}
   .banner svg{width:16px;height:16px;flex:0 0 auto}
 
   .mobile-top{display:none} .botnav{display:none} .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
@@ -329,7 +332,7 @@ const T={
   projects_sub:"Track budget against what you've received and spent.",
   income_sub:"Every payment, its status, and what's still owed to you.",
   expenses_sub:"Everything the company spends, by category.",
-  reports_sub:"Profit & loss, VAT, and where the money goes — for any period.",
+  reports_sub:"Profit and loss, VAT, and where the money goes, for any period.",
   total_income:"Income received",total_expenses:"Total expenses",net_profit:"Net profit",active_projects:"Active projects",outstanding:"Outstanding",
   net_position:"Net position",all_time:"all time",profit:"Profit",loss:"Loss",to_collect:"to collect",
   perf:"Income vs expenses",this_month:"This month",top_projects:"Top projects",recent:"Recent activity",
@@ -350,21 +353,21 @@ const T={
   no_income_h:"No income recorded",no_income_p:"Record your first payment or invoice.",
   no_expenses_h:"No expenses recorded",no_expenses_p:"Log what the company spends.",
   no_activity:"Nothing here yet. Add an entry to see it appear.",
-  saved:"Saved",deleted:"Deleted",readonly_note:"You have view-only access — ask an editor to make changes.",
-  local_note:"Not connected to the shared database — changes are saved on this device only.",
+  saved:"Saved",deleted:"Deleted",readonly_note:"You have view-only access. Ask an editor to make changes.",
+  local_note:"Not connected to a shared database. Changes are saved on this device only.",
   cat_deposit:"Deposit",cat_payment:"Payment",cat_final:"Final payment",cat_retainer:"Retainer",
   cat_materials:"Materials",cat_salaries:"Salaries",cat_rent:"Rent",cat_utilities:"Utilities",cat_transport:"Transport",cat_marketing:"Marketing",cat_fees:"Fees",cat_software:"Software",cat_other:"Other",
   curr:"JD",p_month:"Month",p_quarter:"Quarter",p_year:"Year",p_all:"All time",
   pnl:"Profit & Loss",vat_summary:"VAT summary",vat_collected:"VAT on income",vat_paid:"VAT on expenses",vat_net:"Net VAT due",
   income_by_cat:"Income by category",expense_by_cat:"Expenses by category",top_clients:"Top clients",
   company_name:"Company name",settings_sub:"Your company details, shown on reports.",gross:"Gross",net_of_vat:"Net of VAT",period:"Period",no_data:"No data for this period.",generated:"Generated",
-  nav_tasks:"Tasks",tasks:"Tasks & team",tasks_sub:"Who's working on what — assign, track and see workload.",
+  nav_tasks:"Tasks",tasks:"Tasks & team",tasks_sub:"Who is working on what: assign, track and see workload.",
   add_task:"Add task",edit_task:"Edit task",new_task:"New task",title:"Title",assignee:"Assignee",unassigned:"Unassigned",priority:"Priority",due:"Due",hours:"Hours",logged_hours:"Hours logged",billable:"Billable",
   pr_none:"None",pr_low:"Low",pr_medium:"Medium",pr_high:"High",
   ts_todo:"To do",ts_doing:"In progress",ts_blocked:"Blocked",ts_done:"Done",
   team:"Team",manage_team:"Manage team",add_member:"Add member",edit_member:"Edit member",member:"Member",role:"Role",billable_rate:"Billable rate",cost_rate:"Cost rate",hr:"/hr",
-  workload:"Team workload",open_tasks:"open",overdue_l:"overdue",no_tasks_h:"No tasks yet",no_tasks_p:"Add your first task and assign it to someone.",no_members_h:"No team members",no_members_p:"Add the people who work with you, then assign tasks.",no_one:"No team yet — add members to assign tasks.",move_to:"Move to",tasks_l:"tasks",
-  nav_invoices:"Invoices",invoices:"Invoices",invoices_sub:"Create, send and get paid — with VAT and line items.",
+  workload:"Team workload",open_tasks:"open",overdue_l:"overdue",no_tasks_h:"No tasks yet",no_tasks_p:"Add your first task and assign it to someone.",no_members_h:"No team members",no_members_p:"Add the people who work with you, then assign tasks.",no_one:"No team yet. Add members to assign tasks.",move_to:"Move to",tasks_l:"tasks",
+  nav_invoices:"Invoices",invoices:"Invoices",invoices_sub:"Create, send and get paid, with VAT and line items.",
   new_invoice:"New invoice",edit_invoice:"Edit invoice",invoice:"Invoice",invoice_no:"Invoice no.",issue_date:"Issue date",bill_to:"Bill to",from_l:"From",
   line_items:"Line items",item_desc:"Description",qty:"Qty",rate:"Rate",line_total:"Total",add_item:"Add line",subtotal:"Subtotal",vat_amount:"VAT",grand_total:"Total due",terms:"Notes / terms",
   iv_draft:"Draft",iv_sent:"Sent",iv_paid:"Paid",iv_overdue:"Overdue",mark_paid:"Mark paid",mark_sent:"Mark sent",print_invoice:"Print / PDF",
@@ -372,11 +375,15 @@ const T={
   search_all:"Search or jump to…",quick_actions:"Quick actions",go_to:"Go to",no_results:"No results",shortcuts:"Shortcuts",cmd_hint:"⌘K",
   backup:"Backup & restore",export_backup:"Export backup",import_backup:"Import backup",import_confirm:"Replace all current data with this backup file?",restored:"Backup restored",exported:"Backup exported",
   over_budget:"Over budget",dash_period:"Period",
-  start_timer:"Start",stop_timer:"Stop",running:"running",log_time:"Log time",pull_hours:"Pull billable hours",unbilled:"unbilled",billed:"billed",no_unbilled:"No unbilled hours for this client.",
+  start_timer:"Start",stop_timer:"Stop",running:"running",pull_hours:"Pull billable hours",unbilled:"unbilled",no_unbilled:"No unbilled hours for this client.",
+  type:"Type",p_last:"Last month",p_bimonthly:"Filing period",
+  storage_err:"Changes could NOT be saved. Export a backup now, then free up space or use a normal browser window.",
+  storage_recover:"Your saved data could not be read, so saving is paused to protect it. Import a backup to recover.",
+  save_failed:"Not saved",dismiss:"Dismiss",
   labor:"Labor cost",est_labor:"Est. labor",profit_after_labor:"Profit after labor",gross_profit:"Gross profit",
   statement:"Statement",client_statement:"Client statement",project_overview:"Project overview",total_invoiced:"Invoiced",total_paid:"Paid",ledger:"Ledger",overview:"Overview",no_tx:"No transactions yet.",contact:"Contact",tag:"Tags",tags_ph:"e.g. urgent, design",filter:"Filter",my_open:"Open",all_tasks:"All",
   tab_invoices:"Invoices",tab_quotes:"Quotes",new_quote:"New quote",edit_quote:"Edit quote",quote:"Quote",quote_no:"Quote no.",convert_to_invoice:"Convert to invoice",converted:"Converted to invoice",q_accepted:"Accepted",q_declined:"Declined",no_quotes_h:"No quotes yet",no_quotes_p:"Create a quote and convert it to an invoice when accepted.",
-  recurring:"Recurring",recurring_sub:"Rent, salaries, retainers — generated automatically each month.",add_recurring:"Add recurring",edit_recurring:"Edit recurring",manage_recurring:"Recurring",day_of_month:"Day of month",starts:"Starts",active_l:"Active",label_l:"Label",every_month:"every month",no_recurring:"No recurring rules yet.",generated_n:"recurring entries added",
+  recurring:"Recurring",recurring_sub:"Rent, salaries, retainers, generated automatically each month.",add_recurring:"Add recurring",edit_recurring:"Edit recurring",manage_recurring:"Recurring",day_of_month:"Day of month",starts:"Starts",active_l:"Active",label_l:"Label",every_month:"every month",no_recurring:"No recurring rules yet.",generated_n:"recurring entries added",
   activity_log:"Activity log",activity_l:"Activity",no_activity_log:"No activity yet.",act_created:"created",act_updated:"updated",act_deleted:"deleted",you:"You",ago:"ago",
  },
  ar:{appName:"ميزان",tagline:"حسابات الشركة",
@@ -387,7 +394,7 @@ const T={
   projects_sub:"تابع الميزانية مقابل ما استلمته وما أنفقته.",
   income_sub:"كل دفعة وحالتها وما تبقّى لك من مستحقات.",
   expenses_sub:"كل ما تنفقه الشركة، حسب الفئة.",
-  reports_sub:"الأرباح والخسائر وضريبة المبيعات وأين تذهب الأموال — لأي فترة.",
+  reports_sub:"الأرباح والخسائر وضريبة المبيعات وأين تذهب الأموال، لأي فترة.",
   total_income:"الإيرادات المستلمة",total_expenses:"إجمالي المصروفات",net_profit:"صافي الربح",active_projects:"مشاريع نشطة",outstanding:"مستحقات",
   net_position:"صافي المركز",all_time:"إجمالي",profit:"ربح",loss:"خسارة",to_collect:"للتحصيل",
   perf:"الإيرادات مقابل المصروفات",this_month:"هذا الشهر",top_projects:"أفضل المشاريع",recent:"أحدث الحركات",
@@ -408,21 +415,21 @@ const T={
   no_income_h:"لا توجد إيرادات مسجّلة",no_income_p:"سجّل أول دفعة أو فاتورة.",
   no_expenses_h:"لا توجد مصروفات مسجّلة",no_expenses_p:"سجّل ما تنفقه الشركة.",
   no_activity:"لا شيء هنا بعد. أضف حركة لتظهر.",
-  saved:"تم الحفظ",deleted:"تم الحذف",readonly_note:"صلاحيتك للعرض فقط — اطلب من محرّر إجراء التعديلات.",
-  local_note:"غير متصل بقاعدة البيانات المشتركة — التغييرات تُحفظ على هذا الجهاز فقط.",
+  saved:"تم الحفظ",deleted:"تم الحذف",readonly_note:"صلاحيتك للعرض فقط. اطلب من محرّر إجراء التعديلات.",
+  local_note:"غير متصل بقاعدة بيانات مشتركة. التغييرات تُحفظ على هذا الجهاز فقط.",
   cat_deposit:"دفعة مقدّمة",cat_payment:"دفعة",cat_final:"دفعة نهائية",cat_retainer:"دفعة شهرية",
   cat_materials:"مواد",cat_salaries:"رواتب",cat_rent:"إيجار",cat_utilities:"فواتير",cat_transport:"نقل",cat_marketing:"تسويق",cat_fees:"رسوم",cat_software:"برمجيات",cat_other:"أخرى",
   curr:"د.أ",p_month:"شهر",p_quarter:"ربع",p_year:"سنة",p_all:"الكل",
   pnl:"الأرباح والخسائر",vat_summary:"ملخّص الضريبة",vat_collected:"ضريبة على الإيرادات",vat_paid:"ضريبة على المصروفات",vat_net:"صافي الضريبة المستحقة",
   income_by_cat:"الإيرادات حسب الفئة",expense_by_cat:"المصروفات حسب الفئة",top_clients:"أفضل العملاء",
   company_name:"اسم الشركة",settings_sub:"بيانات شركتك، تظهر في التقارير.",gross:"الإجمالي",net_of_vat:"بدون الضريبة",period:"الفترة",no_data:"لا توجد بيانات لهذه الفترة.",generated:"تاريخ الإصدار",
-  nav_tasks:"المهام",tasks:"المهام والفريق",tasks_sub:"من يعمل على ماذا — أسنِد وتابع واعرف حجم العمل.",
+  nav_tasks:"المهام",tasks:"المهام والفريق",tasks_sub:"من يعمل على ماذا: أسنِد وتابع واعرف حجم العمل.",
   add_task:"إضافة مهمة",edit_task:"تعديل مهمة",new_task:"مهمة جديدة",title:"العنوان",assignee:"المسؤول",unassigned:"غير مُسنَدة",priority:"الأولوية",due:"الاستحقاق",hours:"ساعات",logged_hours:"الساعات المسجّلة",billable:"قابلة للفوترة",
   pr_none:"بدون",pr_low:"منخفضة",pr_medium:"متوسطة",pr_high:"عالية",
   ts_todo:"قيد الانتظار",ts_doing:"قيد التنفيذ",ts_blocked:"متوقّفة",ts_done:"منجزة",
   team:"الفريق",manage_team:"إدارة الفريق",add_member:"إضافة عضو",edit_member:"تعديل عضو",member:"العضو",role:"الدور",billable_rate:"سعر الفوترة",cost_rate:"سعر التكلفة",hr:"/ساعة",
-  workload:"حجم عمل الفريق",open_tasks:"مفتوحة",overdue_l:"متأخرة",no_tasks_h:"لا توجد مهام بعد",no_tasks_p:"أضف أول مهمة وأسنِدها لأحد.",no_members_h:"لا يوجد أعضاء",no_members_p:"أضف من يعمل معك ثم أسنِد المهام.",no_one:"لا يوجد فريق بعد — أضف أعضاء لإسناد المهام.",move_to:"نقل إلى",tasks_l:"مهمة",
-  nav_invoices:"الفواتير",invoices:"الفواتير",invoices_sub:"أنشئ وأرسل واحصل على مستحقاتك — مع الضريبة والبنود.",
+  workload:"حجم عمل الفريق",open_tasks:"مفتوحة",overdue_l:"متأخرة",no_tasks_h:"لا توجد مهام بعد",no_tasks_p:"أضف أول مهمة وأسنِدها لأحد.",no_members_h:"لا يوجد أعضاء",no_members_p:"أضف من يعمل معك ثم أسنِد المهام.",no_one:"لا يوجد فريق بعد. أضف أعضاء لإسناد المهام.",move_to:"نقل إلى",tasks_l:"مهمة",
+  nav_invoices:"الفواتير",invoices:"الفواتير",invoices_sub:"أنشئ وأرسل واحصل على مستحقاتك، مع الضريبة والبنود.",
   new_invoice:"فاتورة جديدة",edit_invoice:"تعديل فاتورة",invoice:"فاتورة",invoice_no:"رقم الفاتورة",issue_date:"تاريخ الإصدار",bill_to:"إلى",from_l:"من",
   line_items:"البنود",item_desc:"الوصف",qty:"الكمية",rate:"السعر",line_total:"الإجمالي",add_item:"إضافة بند",subtotal:"المجموع الفرعي",vat_amount:"الضريبة",grand_total:"الإجمالي المستحق",terms:"ملاحظات / شروط",
   iv_draft:"مسودة",iv_sent:"مُرسلة",iv_paid:"مدفوعة",iv_overdue:"متأخرة",mark_paid:"تحديد كمدفوعة",mark_sent:"تحديد كمُرسلة",print_invoice:"طباعة / PDF",
@@ -430,11 +437,15 @@ const T={
   search_all:"ابحث أو انتقل…",quick_actions:"إجراءات سريعة",go_to:"انتقل إلى",no_results:"لا نتائج",shortcuts:"اختصارات",cmd_hint:"⌘K",
   backup:"نسخ احتياطي واستعادة",export_backup:"تصدير نسخة",import_backup:"استيراد نسخة",import_confirm:"استبدال كل البيانات الحالية بهذا الملف؟",restored:"تمت الاستعادة",exported:"تم التصدير",
   over_budget:"تجاوز الميزانية",dash_period:"الفترة",
-  start_timer:"ابدأ",stop_timer:"إيقاف",running:"قيد التشغيل",log_time:"تسجيل وقت",pull_hours:"سحب الساعات القابلة للفوترة",unbilled:"غير مفوترة",billed:"مفوترة",no_unbilled:"لا توجد ساعات غير مفوترة لهذا العميل.",
+  start_timer:"ابدأ",stop_timer:"إيقاف",running:"قيد التشغيل",pull_hours:"سحب الساعات القابلة للفوترة",unbilled:"غير مفوترة",no_unbilled:"لا توجد ساعات غير مفوترة لهذا العميل.",
+  type:"النوع",p_last:"الشهر الماضي",p_bimonthly:"فترة الإقرار",
+  storage_err:"تعذّر حفظ التغييرات. صدّر نسخة احتياطية الآن، ثم أفرغ مساحة أو استخدم نافذة عادية.",
+  storage_recover:"تعذّرت قراءة بياناتك المحفوظة، لذا أُوقف الحفظ مؤقتًا لحمايتها. استورد نسخة احتياطية للاسترجاع.",
+  save_failed:"لم يتم الحفظ",dismiss:"إخفاء",
   labor:"تكلفة العمالة",est_labor:"العمالة التقديرية",profit_after_labor:"الربح بعد العمالة",gross_profit:"الربح الإجمالي",
   statement:"كشف حساب",client_statement:"كشف حساب العميل",project_overview:"نظرة عامة على المشروع",total_invoiced:"مفوتر",total_paid:"مدفوع",ledger:"دفتر الأستاذ",overview:"نظرة عامة",no_tx:"لا توجد حركات بعد.",contact:"التواصل",tag:"وسوم",tags_ph:"مثال: عاجل، تصميم",filter:"تصفية",my_open:"مفتوحة",all_tasks:"الكل",
   tab_invoices:"الفواتير",tab_quotes:"عروض الأسعار",new_quote:"عرض سعر جديد",edit_quote:"تعديل عرض السعر",quote:"عرض سعر",quote_no:"رقم العرض",convert_to_invoice:"تحويل إلى فاتورة",converted:"تم التحويل إلى فاتورة",q_accepted:"مقبول",q_declined:"مرفوض",no_quotes_h:"لا توجد عروض بعد",no_quotes_p:"أنشئ عرض سعر وحوّله إلى فاتورة عند القبول.",
-  recurring:"متكرر",recurring_sub:"إيجار، رواتب، اشتراكات — تُنشأ تلقائيًا كل شهر.",add_recurring:"إضافة متكرر",edit_recurring:"تعديل المتكرر",manage_recurring:"المتكررة",day_of_month:"يوم من الشهر",starts:"يبدأ",active_l:"نشط",label_l:"التسمية",every_month:"كل شهر",no_recurring:"لا توجد قواعد متكررة بعد.",generated_n:"حركة متكررة أُضيفت",
+  recurring:"متكرر",recurring_sub:"إيجار، رواتب، اشتراكات تُنشأ تلقائيًا كل شهر.",add_recurring:"إضافة متكرر",edit_recurring:"تعديل المتكرر",manage_recurring:"المتكررة",day_of_month:"يوم من الشهر",starts:"يبدأ",active_l:"نشط",label_l:"التسمية",every_month:"كل شهر",no_recurring:"لا توجد قواعد متكررة بعد.",generated_n:"حركة متكررة أُضيفت",
   activity_log:"سجل النشاط",activity_l:"النشاط",no_activity_log:"لا يوجد نشاط بعد.",act_created:"أنشأ",act_updated:"عدّل",act_deleted:"حذف",you:"أنت",ago:"مضت",
  }
 };
@@ -453,7 +464,7 @@ function catLabel(c){return L("cat_"+c)||c;}
 /* ===================== state / store ===================== */
 const state={clients:[],projects:[],transactions:[],members:[],tasks:[],invoices:[],recurring:[],activity:[],settings:{company:"",vatRate:16,tin:"",address:""}};
 let view="dashboard",readOnly=false,backend="loading",dbCap=null,userCap=null,chartMonths=6,reportPeriod="month",dashPeriod="all",invoiceId=null,detailId=null,taskFilter="all",invTab="invoice";
-let justNavigated=true,paletteOpen=false,timerTick=null,ranRecurring=false;
+let justNavigated=true,paletteOpen=false,timerTick=null,ranRecurring=false,loadFailed=false,storageOK=true,noteDismissed=false;
 const filters={clientSearch:"",projSearch:"",incSearch:"",expSearch:"",projStatus:"all"};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 
@@ -461,6 +472,8 @@ async function initStore(){
   try{dbCap=await claude.use("db");}catch(e){dbCap=null;}
   try{userCap=await claude.use("user"); if(userCap){const cw=userCap.can?userCap.can("data.write"):true; if(cw===false)readOnly=true;}}catch(e){userCap=null;}
   try{state.activity=JSON.parse(localStorage.getItem("mizan_activity")||"[]");}catch(e){state.activity=[];}
+  try{noteDismissed=localStorage.getItem("mizan_note_dismissed")==="1";}catch(e){}
+  try{localStorage.setItem("mizan_probe","1");localStorage.removeItem("mizan_probe");}catch(e){storageOK=false;}
   if(dbCap){ backend="db"; ["clients","projects","transactions","members","tasks","invoices","recurring"].forEach(subscribe);
     try{dbCap.doc("settings/app").onSnapshot(s=>{if(s.exists)state.settings={...state.settings,...s.data()};render();});}catch(e){}
     render();
@@ -468,35 +481,73 @@ async function initStore(){
   } else { backend="local"; loadLocal(); render(); generateRecurring(); }
 }
 function logAct(action,kind,label){try{state.activity.unshift({ts:Date.now(),action,kind,label:label||""});if(state.activity.length>200)state.activity.length=200;localStorage.setItem("mizan_activity",JSON.stringify(state.activity));}catch(e){}}
-function ymNow(){return new Date().toISOString().slice(0,7);}
+function ymNow(){return ym(new Date());}
 function nextYM(ym){let[y,m]=ym.split("-").map(Number);m++;if(m>12){m=1;y++;}return y+"-"+String(m).padStart(2,"0");}
 async function generateRecurring(){
   if(ranRecurring||readOnly)return;ranRecurring=true;const cur=ymNow();let added=0;
   for(const r of state.recurring){ if(r.active===false)continue;
     let m=r.lastMonth?nextYM(r.lastMonth):(r.startMonth||cur);
     let guard=0,lastGen=r.lastMonth;
-    while(m<=cur&&guard++<60){
+    while(m<=cur&&guard++<12){
+      if(state.transactions.some(x=>x.recurringId===r.id&&String(x.date).slice(0,7)===m)){lastGen=m;m=nextYM(m);continue;}
       const day=String(Math.min(28,Math.max(1,Number(r.dayOfMonth)||1))).padStart(2,"0");
-      const tx={type:r.kind||"expense",amount:Number(r.amount)||0,date:m+"-"+day,category:r.category||"other",taxRate:Number(r.taxRate)||0,projectId:r.projectId||null,clientId:r.clientId||null,description:r.label||"",recurringId:r.id};
-      if((tx.type)==="income")tx.status="received";tx.createdAt=new Date().toISOString();
-      try{ if(backend==="db")await dbCap.collection("transactions").add(tx); else {state.transactions.push({id:uid(),...tx});} added++; }catch(e){}
-      lastGen=m; m=nextYM(m);
+      const tx={type:r.kind||"expense",amount:Number(r.amount)||0,date:m+"-"+day,category:r.category||"other",taxRate:Number(r.taxRate)||0,projectId:r.projectId||null,clientId:r.clientId||null,description:r.label||"",recurringId:r.id,createdAt:new Date().toISOString()};
+      if(tx.type==="income")tx.status="pending";
+      let ok=true;
+      try{ if(backend==="db")await dbCap.collection("transactions").add(tx); else {state.transactions.push({id:uid(),...tx}); if(!saveLocal()){state.transactions.pop();ok=false;}} }catch(e){ok=false;}
+      if(!ok)break;
+      added++; lastGen=m; m=nextYM(m);
     }
     if(lastGen&&lastGen!==r.lastMonth){ const rd={...r,lastMonth:lastGen,updatedAt:new Date().toISOString()};delete rd.id; try{await setRec("recurring",r.id,rd,true);}catch(e){} }
   }
   if(added){ if(backend==="local")saveLocal(); render(); toast(added+" "+L("generated_n")); }
 }
 function subscribe(coll){ try{dbCap.collection(coll).onSnapshot(s=>{state[coll]=s.docs.map(d=>({id:d.id,...d.data()}));render();},e=>{if(e&&e.code==="revoked"){readOnly=true;render();}});}catch(e){} }
-function loadLocal(){ try{const r=localStorage.getItem("mizan_data"); if(r){const d=JSON.parse(r);state.clients=d.clients||[];state.projects=d.projects||[];state.transactions=d.transactions||[];state.members=d.members||[];state.tasks=d.tasks||[];state.invoices=d.invoices||[];state.recurring=d.recurring||[];}
-  const s=localStorage.getItem("mizan_settings"); if(s)state.settings={...state.settings,...JSON.parse(s)};}catch(e){} }
-function saveLocal(){ try{localStorage.setItem("mizan_data",JSON.stringify({clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring}));}catch(e){} }
+const COLLS=["clients","projects","transactions","members","tasks","invoices","recurring"];
+function loadLocal(){
+  let d=null;
+  try{const r=localStorage.getItem("mizan_data"); if(r)d=JSON.parse(r);}
+  catch(e){ loadFailed=true; return; }
+  if(d&&typeof d==="object"){ COLLS.forEach(k=>{ if(Array.isArray(d[k]))state[k]=d[k]; }); if(d.settings)state.settings={...state.settings,...d.settings}; }
+  if(!d||!d.settings){ try{const s=localStorage.getItem("mizan_settings"); if(s)state.settings={...state.settings,...JSON.parse(s)};}catch(e){} }
+}
+function saveLocal(){
+  if(loadFailed)return false;
+  try{
+    const payload=JSON.stringify({app:"mizan",version:2,clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring,settings:state.settings});
+    const prev=localStorage.getItem("mizan_data");
+    localStorage.setItem("mizan_data",payload);
+    try{ if(prev&&prev!==payload)localStorage.setItem("mizan_data_prev",prev); }catch(e){}
+    try{ localStorage.setItem("mizan_settings",JSON.stringify(state.settings)); }catch(e){}
+    if(!storageOK){storageOK=true;}
+    return true;
+  }catch(e){ storageOK=false; return false; }
+}
+function storageFail(){ storageOK=false; return {code:"storage",message:L("storage_err")}; }
 function actLabel(c,d){if(!d)return"";if(c==="invoices")return (d.kind==="quote"?"QUO":"INV")+"-"+String(d.seq||0).padStart(4,"0");return d.name||d.title||d.label||d.description||(d.amount!=null?fmtNum(d.amount)+" "+L("curr"):"");}
-async function addRec(c,d,silent){ if(backend==="db")await dbCap.collection(c).add(d); else{state[c].push({id:uid(),...d});saveLocal();render();} if(!silent)logAct("act_created",c,actLabel(c,d)); }
-async function setRec(c,id,d,silent){ if(backend==="db")await dbCap.collection(c).doc(id).set(d); else{const i=state[c].findIndex(x=>x.id===id);if(i>-1)state[c][i]={id,...d};saveLocal();render();} if(!silent)logAct("act_updated",c,actLabel(c,d)); }
-async function delRec(c,id,silent){ const before=state[c].find(x=>x.id===id); if(backend==="db")await dbCap.collection(c).doc(id).delete(); else{state[c]=state[c].filter(x=>x.id!==id);saveLocal();render();} if(!silent)logAct("act_deleted",c,actLabel(c,before)); }
-async function saveSettings(obj){ state.settings={...state.settings,...obj};
-  if(backend==="db"){try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}} else {try{localStorage.setItem("mizan_settings",JSON.stringify(state.settings));}catch(e){}}
+async function addRec(c,d,silent){
+  if(backend==="db")await dbCap.collection(c).add(d);
+  else{ const snap=state[c].slice(); state[c].push({id:uid(),...d}); if(!saveLocal()){state[c]=snap;render();throw storageFail();} render(); }
+  if(!silent)logAct("act_created",c,actLabel(c,d));
+}
+async function setRec(c,id,d,silent){
+  if(backend==="db"){ try{ await dbCap.collection(c).doc(id).update(d); }catch(e){ await dbCap.collection(c).doc(id).set(d); } }
+  else{ const i=state[c].findIndex(x=>x.id===id); const snap=i>-1?state[c][i]:null;
+    if(i>-1)state[c][i]={...state[c][i],...d,id};
+    if(!saveLocal()){ if(i>-1)state[c][i]=snap; render(); throw storageFail(); } render(); }
+  if(!silent)logAct("act_updated",c,actLabel(c,d));
+}
+async function delRec(c,id,silent){
+  const before=state[c].find(x=>x.id===id);
+  if(backend==="db")await dbCap.collection(c).doc(id).delete();
+  else{ const snap=state[c].slice(); state[c]=state[c].filter(x=>x.id!==id); if(!saveLocal()){state[c]=snap;render();throw storageFail();} render(); }
+  if(!silent)logAct("act_deleted",c,actLabel(c,before));
+}
+async function saveSettings(obj){ const snap={...state.settings}; state.settings={...state.settings,...obj};
+  if(backend==="db"){ await dbCap.doc("settings/app").set(state.settings); }
+  else if(!saveLocal()){ state.settings=snap; render(); throw storageFail(); }
   render(); }
+function bumpSeq(kind,seq){ const key=kind==="quote"?"lastQuoteSeq":"lastInvoiceSeq"; if((Number(state.settings[key])||0)<seq){ state.settings[key]=seq; if(backend==="db"){try{dbCap.doc("settings/app").set(state.settings);}catch(e){}} else saveLocal(); } }
 
 /* ===================== helpers ===================== */
 function fmtNum(n,dec){dec=dec==null?3:dec; return Math.abs(Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:dec,maximumFractionDigits:dec});}
@@ -505,7 +556,10 @@ function bigMoney(n,sign){n=Number(n)||0; const p=sign&&n>0?"+":((sign&&n<0)||n<
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function initials(n){const p=String(n||"?").trim().split(/\s+/);return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase();}
 function fmtDate(d){if(!d)return"—";try{return new Date(d+"T00:00:00").toLocaleDateString(lang==="ar"?"ar-EG":"en-GB",{day:"2-digit",month:"short",year:"numeric"});}catch(e){return d;}}
-function todayISO(){return new Date().toISOString().slice(0,10);}
+function ym(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");}
+function ymd(d){return ym(d)+"-"+String(d.getDate()).padStart(2,"0");}
+function todayISO(){return ymd(new Date());}
+function safeColor(c){return (typeof c==="string"&&/^#[0-9a-fA-F]{3,8}$/.test(c))?c:"#5a6270";}
 function clientName(id){const c=state.clients.find(x=>x.id===id);return c?c.name:null;}
 function projName(id){const p=state.projects.find(x=>x.id===id);return p?p.name:null;}
 function isReceived(t){return t.type==="income" && t.status!=="pending";}
@@ -518,8 +572,16 @@ function projLabor(pid){let lab=0;for(const t of state.tasks){if(t.projectId!==p
 function projStats(pid){let inc=0,exp=0;for(const t of state.transactions){if(t.projectId!==pid)continue;if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;}else exp+=+t.amount||0;}const labor=projLabor(pid);return{inc,exp,profit:inc-exp,labor,afterLabor:inc-exp-labor};}
 function unbilledTasksForClient(clientId){return state.tasks.filter(t=>t.billable&&!t.billed&&(Number(t.loggedHours)||0)>0&&(t.clientId===clientId||(t.projectId&&(state.projects.find(p=>p.id===t.projectId)||{}).clientId===clientId)));}
 function totals(list){list=list||state.transactions;let inc=0,exp=0,out=0;for(const t of list){if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;else out+=+t.amount||0;}else exp+=+t.amount||0;}return{inc,exp,net:inc-exp,out};}
-function periodStart(key){const n=new Date();if(key==="month")return new Date(n.getFullYear(),n.getMonth(),1);if(key==="quarter")return new Date(n.getFullYear(),Math.floor(n.getMonth()/3)*3,1);if(key==="year")return new Date(n.getFullYear(),0,1);return null;}
-function inPeriod(t,key){const s=periodStart(key);if(!s)return true;return new Date(t.date+"T00:00:00")>=s;}
+const PERIODS=["month","last","bimonthly","quarter","year","all"];
+function periodRange(key){const n=new Date(),y=n.getFullYear(),m=n.getMonth();
+  if(key==="month")return[new Date(y,m,1),new Date(y,m+1,1)];
+  if(key==="last")return[new Date(y,m-1,1),new Date(y,m,1)];
+  if(key==="bimonthly"){const s=m-(m%2);return[new Date(y,s,1),new Date(y,s+2,1)];}
+  if(key==="quarter"){const s=Math.floor(m/3)*3;return[new Date(y,s,1),new Date(y,s+3,1)];}
+  if(key==="year")return[new Date(y,0,1),new Date(y+1,0,1)];
+  return null;}
+function inPeriod(t,key){const r=periodRange(key);if(!r)return true;if(!t.date)return false;const d=new Date(t.date+"T00:00:00");return d>=r[0]&&d<r[1];}
+function periodLabel(key){const r=periodRange(key);if(!r)return L("p_all");const end=new Date(r[1].getTime()-86400000);return fmtDate(ymd(r[0]))+" - "+fmtDate(ymd(end));}
 function memberById(id){return state.members.find(m=>m.id===id);}
 function memberName(id){const m=memberById(id);return m?m.name:null;}
 function memberColor(id){const m=memberById(id);return m?(m.color||"#5a6270"):"#9aa0ac";}
@@ -530,7 +592,7 @@ function invSubtotal(inv){return (inv.items||[]).reduce((a,it)=>a+(Number(it.qty
 function invVat(inv){return invSubtotal(inv)*(Number(inv.vatRate)||0)/100;}
 function invTotal(inv){return invSubtotal(inv)+invVat(inv);}
 function invStatus(inv){if((inv.kind||"invoice")==="quote")return inv.status||"draft";if(inv.status==="paid")return"paid";if(inv.status!=="draft"&&inv.dueDate&&inv.dueDate<todayISO())return"overdue";return inv.status||"draft";}
-function nextInvoiceSeq(kind){kind=kind||"invoice";return state.invoices.filter(i=>(i.kind||"invoice")===kind).reduce((m,i)=>Math.max(m,Number(i.seq)||0),0)+1;}
+function nextInvoiceSeq(kind){kind=kind||"invoice";const k=kind==="quote"?"lastQuoteSeq":"lastInvoiceSeq";const live=state.invoices.filter(i=>(i.kind||"invoice")===kind).reduce((m,i)=>Math.max(m,Number(i.seq)||0),0);return Math.max(Number(state.settings[k])||0,live)+1;}
 function invNumber(inv){return ((inv.kind==="quote")?"QUO-":"INV-")+String(inv.seq||0).padStart(4,"0");}
 function invStPill(st){return {paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold",accepted:"received",declined:"overdue"}[st]||"on_hold";}
 function invStLabel(inv,st){return (inv.kind==="quote"&&(st==="accepted"||st==="declined"))?L("q_"+st):L("iv_"+st);}
@@ -578,7 +640,9 @@ function render(){
     <div class="main ${justNavigated?'anim-in':''}">
       ${mobileTop()}
       ${topbar()}
-      ${backend==="local"?`<div class="banner">${I.warn}${esc(L("local_note"))}</div>`:""}
+      ${loadFailed?`<div class="banner danger">${I.warn}<span>${esc(L("storage_recover"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="triggerImport()">${esc(L("import_backup"))}</button></div>`:""}
+      ${(!storageOK&&!loadFailed)?`<div class="banner danger">${I.warn}<span>${esc(L("storage_err"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="exportBackup()">${esc(L("export_backup"))}</button></div>`:""}
+      ${(backend==="local"&&!noteDismissed&&storageOK&&!loadFailed)?`<div class="banner">${I.warn}<span>${esc(L("local_note"))}</span><button class="btn sm" style="margin-inline-start:auto" onclick="dismissNote()">${esc(L("dismiss"))}</button></div>`:""}
       ${readOnly?`<div class="banner">${I.warn}${esc(L("readonly_note"))}</div>`:""}
       ${renderView()}
     </div>
@@ -663,7 +727,7 @@ function dashboard(){
   const activeCount=state.projects.filter(p=>p.status==="active").length;
   const incCount=flist.filter(x=>x.type==="income"&&isReceived(x)).length;
   const expCount=flist.filter(x=>x.type==="expense").length;
-  const pseg=`<div class="toolbar" style="margin-bottom:15px"><div class="seg">${["month","quarter","year","all"].map(p=>`<button class="${dashPeriod===p?'on':''}" onclick="setDashPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div></div>`;
+  const pseg=`<div class="toolbar" style="margin-bottom:15px"><div class="seg">${PERIODS.map(p=>`<button class="${dashPeriod===p?"on":""}" onclick="setDashPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div></div>`;
   const stats=`<div class="stat3">
     <div class="stat pos"><div class="top"><span class="ic">${I.income}</span>${esc(L("total_income"))}</div><div class="big">${bigMoney(t.inc)}<span class="badge pos">${incCount} ${esc(L("entries"))}</span></div></div>
     <div class="stat neg"><div class="top"><span class="ic">${I.expenses}</span>${esc(L("total_expenses"))}</div><div class="big">${bigMoney(t.exp)}<span class="badge neg">${expCount} ${esc(L("entries"))}</span></div></div>
@@ -690,7 +754,7 @@ function dashboard(){
   const rows=state.projects.map(p=>({p,...projStats(p.id)})).filter(r=>r.inc||r.exp).sort((a,b)=>b.profit-a.profit).slice(0,5);
   const topCard=`<div class="card hov"><div class="card-h"><h2>${esc(L("top_projects"))}</h2><span class="hint">${esc(L("profit"))}</span></div>
     <div class="list">${rows.length?rows.map(r=>`<div class="lrow"><span class="av">${esc(initials(r.p.name))}</span><div class="mid"><div class="t">${esc(r.p.name)}</div><div class="s">${esc(clientName(r.p.clientId)||L("none"))}</div></div><span class="amt ${r.profit>=0?'pos':'neg'}">${money(r.profit,true)}</span></div>`).join(""):emptyMini()}</div></div>`;
-  const mk=new Date().toISOString().slice(0,7);let mInc=0,mExp=0;for(const t2 of state.transactions){if(String(t2.date).slice(0,7)!==mk)continue;if(t2.type==="income"){if(isReceived(t2))mInc+=+t2.amount||0;}else mExp+=+t2.amount||0;}
+  const mk=ymNow();let mInc=0,mExp=0;for(const t2 of state.transactions){if(String(t2.date).slice(0,7)!==mk)continue;if(t2.type==="income"){if(isReceived(t2))mInc+=+t2.amount||0;}else mExp+=+t2.amount||0;}
   const mMax=Math.max(1,mInc,mExp);
   const monthCard=`<div class="card hov"><div class="card-h"><h2>${esc(L("this_month"))}</h2></div>
     <div style="padding:14px 20px 22px;display:flex;flex-direction:column;gap:17px">
@@ -708,13 +772,13 @@ function workloadMini(){
   const max=Math.max(1,...active.map(m=>openTaskCount(m.id)));
   const rows=active.slice().sort((a,b)=>openTaskCount(b.id)-openTaskCount(a.id)).slice(0,5);
   return `<div class="card hov"><div class="card-h"><h2>${esc(L("workload"))}</h2><span class="link" onclick="go('tasks')">${esc(L("view_all"))}</span></div>
-    <div style="padding:6px 12px 14px">${rows.length?rows.map(m=>{const oc=openTaskCount(m.id),od=overdueTaskCount(m.id);return `<div class="wkrow"><span class="mav" style="background:${m.color||'#5a6270'}">${esc(initials(m.name))}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-weight:600;font-size:13px">${esc(m.name)}</span><span class="amt">${oc} ${esc(L("open_tasks"))}${od?` <span style="color:var(--neg)">· ${od}!</span>`:""}</span></div><div class="wkbar"><i style="width:${oc/max*100}%;background:${m.color||'#5a6270'}"></i></div></div></div>`;}).join(""):`<div class="muted" style="padding:10px 4px">${esc(L("no_one"))}</div>`}</div></div>`;
+    <div style="padding:6px 12px 14px">${rows.length?rows.map(m=>{const oc=openTaskCount(m.id),od=overdueTaskCount(m.id);return `<div class="wkrow"><span class="mav" style="background:${safeColor(m.color)}">${esc(initials(m.name))}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-weight:600;font-size:13px">${esc(m.name)}</span><span class="amt">${oc} ${esc(L("open_tasks"))}${od?` <span style="color:var(--neg)">· ${od}!</span>`:""}</span></div><div class="wkbar"><i style="width:${oc/max*100}%;background:${safeColor(m.color)}"></i></div></div></div>`;}).join(""):`<div class="muted" style="padding:10px 4px">${esc(L("no_one"))}</div>`}</div></div>`;
 }
 function emptyMini(){return `<div class="empty" style="padding:26px 12px"><div class="eic">${I.folder}</div><p style="margin:0">${esc(L("no_activity"))}</p></div>`;}
 
 function areaChart(){
   const months=[];const now=new Date();
-  for(let i=chartMonths-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:d.toISOString().slice(0,7),label:d.toLocaleDateString(lang==="ar"?"ar-EG":"en-US",{month:"short"})});}
+  for(let i=chartMonths-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:ym(d),label:d.toLocaleDateString(lang==="ar"?"ar-EG":"en-US",{month:"short"})});}
   const data=months.map(m=>{let inc=0,exp=0;for(const t of state.transactions){if(String(t.date).slice(0,7)!==m.key)continue;if(t.type==="income"){if(isReceived(t))inc+=+t.amount||0;}else exp+=+t.amount||0;}return{...m,inc,exp};});
   const W=640,H=206,padX=26,padT=18,padB=30,max=Math.max(1,...data.map(d=>Math.max(d.inc,d.exp)));
   const n=data.length,plotW=W-padX*2,plotH=H-padT-padB;
@@ -791,7 +855,7 @@ function reportsView(){
   const t=totals(list);
   const margin=t.inc>0?Math.round(t.net/t.inc*100):0;
   let vatCol=0,vatPaid=0;for(const x of list){if(x.type==="income"){if(isReceived(x))vatCol+=taxOf(x);}else vatPaid+=taxOf(x);}
-  const seg=`<div class="toolbar" style="justify-content:space-between"><div class="seg">${["month","quarter","year","all"].map(p=>`<button class="${reportPeriod===p?'on':''}" onclick="setPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div>
+  const seg=`<div class="toolbar" style="justify-content:space-between"><div class="seg">${PERIODS.map(p=>`<button class="${reportPeriod===p?"on":""}" onclick="setPeriod('${p}')">${esc(L("p_"+p))}</button>`).join("")}</div>
     <div class="print-only" style="font-weight:600">${esc(state.settings.company||L("appName"))} · ${esc(L("period"))}: ${esc(L("p_"+reportPeriod))} · ${esc(L("generated"))} ${fmtDate(todayISO())}</div></div>`;
   const pnl=`<div class="card pnl"><h2>${esc(L("pnl"))}</h2>
     <div class="line"><span class="k">${esc(L("total_income"))}</span><span class="money pos">${money(t.inc)}</span></div>
@@ -819,7 +883,7 @@ function tasksView(){
   const active=state.members.filter(m=>m.active!==false);
   const workload=active.length?`<div class="card hov" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("workload"))}</h2><span class="hint">${esc(L("open_tasks"))}</span></div>
     <div style="padding:6px 12px 12px">${active.slice().sort((a,b)=>openTaskCount(b.id)-openTaskCount(a.id)).map(m=>{const oc=openTaskCount(m.id),od=overdueTaskCount(m.id),max=Math.max(1,...active.map(x=>openTaskCount(x.id)));
-    return `<div class="wkrow"><span class="mav" style="background:${m.color||'#5a6270'}">${esc(initials(m.name))}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-weight:600;font-size:13px">${esc(m.name)}${m.role?` <span class="muted" style="font-weight:400">· ${esc(m.role)}</span>`:""}</span><span class="amt">${oc} ${esc(L("open_tasks"))}${od?` <span style="color:var(--neg)">· ${od} ${esc(L("overdue_l"))}</span>`:""}</span></div><div class="wkbar"><i style="width:${oc/max*100}%;background:${m.color||'#5a6270'}"></i></div></div></div>`;}).join("")}</div></div>`:"";
+    return `<div class="wkrow"><span class="mav" style="background:${safeColor(m.color)}">${esc(initials(m.name))}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-weight:600;font-size:13px">${esc(m.name)}${m.role?` <span class="muted" style="font-weight:400">· ${esc(m.role)}</span>`:""}</span><span class="amt">${oc} ${esc(L("open_tasks"))}${od?` <span style="color:var(--neg)">· ${od} ${esc(L("overdue_l"))}</span>`:""}</span></div><div class="wkbar"><i style="width:${oc/max*100}%;background:${safeColor(m.color)}"></i></div></div></div>`;}).join("")}</div></div>`:"";
   if(!state.tasks.length&&!state.members.length)
     return workload+emptyState("no_tasks_h","no_tasks_p",readOnly?"":`<button class="btn accent" onclick="openTask()">${I.plus}${esc(L("add_task"))}</button>`);
   const dotColor={todo:"var(--ink-faint)",doing:"var(--accent)",blocked:"var(--neg)",done:"var(--pos)"};
@@ -845,7 +909,7 @@ function taskCard(t){
       ${t.dueDate?`<span class="chip ${od?'od':'due'}">${od?'⚠ ':''}${fmtDate(t.dueDate)}</span>`:""}
       ${(t.tags&&t.tags.length)?t.tags.slice(0,2).map(tg=>`<span class="chip" style="color:var(--accent-4)">#${esc(tg)}</span>`).join(""):""}
       ${timerControl(t)}
-      ${m?`<span class="mav" style="background:${m.color||'#5a6270'}" title="${esc(m.name)}">${esc(initials(m.name))}</span>`:`<span class="mav" style="background:var(--surface-3);color:var(--ink-faint)" title="${esc(L('unassigned'))}">?</span>`}
+      ${m?`<span class="mav" style="background:${safeColor(m.color)}" title="${esc(m.name)}">${esc(initials(m.name))}</span>`:`<span class="mav" style="background:var(--surface-3);color:var(--ink-faint)" title="${esc(L('unassigned'))}">?</span>`}
     </div></div>`;
 }
 
@@ -878,7 +942,7 @@ function projectDetail(){
     ${budget?`<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span class="muted">${esc(L("budget"))}: ${money(budget)}</span><span class="muted">${pct}% ${esc(L("collected"))}</span></div><div style="height:9px;border-radius:20px;background:var(--surface-3);overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,pct)}%;background:${s.inc>budget?'var(--pos)':'var(--accent)'};transition:width .7s var(--ease)"></i></div></div>`:""}</div>`;
   const kpis=`<div class="stat3" style="margin-bottom:15px">${dstat(L("received"),s.inc,'var(--pos)')}${dstat(L("spent"),s.exp,'var(--neg)')}${dstat(L("profit"),s.profit,s.profit>=0?'var(--pos)':'var(--neg)',s.labor?`${esc(L("est_labor"))} ${money(s.labor)} · ${esc(L("profit_after_labor"))} ${money(s.afterLabor,true)}`:"")}</div>`;
   const stCls={done:"received",blocked:"overdue",doing:"completed",todo:"on_hold"};
-  const taskList=tks.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("nav_tasks"))}</h2><span class="hint">${tks.filter(t=>t.status!=='done').length} ${esc(L("open_tasks"))}</span></div><div class="list">${tks.map(t=>{const m=memberById(t.assigneeId);return `<div class="lrow" onclick="go('tasks')" style="cursor:pointer"><span class="mav" style="background:${m?m.color||'#5a6270':'var(--surface-3)'};color:${m?'#fff':'var(--ink-faint)'}">${m?esc(initials(m.name)):'?'}</span><div class="mid"><div class="t">${esc(t.title)}</div><div class="s">${m?esc(m.name):esc(L("unassigned"))}${t.loggedHours?` · ${t.loggedHours}h`:""}</div></div><span class="pill ${stCls[t.status||'todo']}" style="font-size:10px">${esc(L("ts_"+(t.status||'todo')))}</span></div>`;}).join("")}</div></div>`:"";
+  const taskList=tks.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("nav_tasks"))}</h2><span class="hint">${tks.filter(t=>t.status!=='done').length} ${esc(L("open_tasks"))}</span></div><div class="list">${tks.map(t=>{const m=memberById(t.assigneeId);return `<div class="lrow" onclick="go('tasks')" style="cursor:pointer"><span class="mav" style="background:${m?safeColor(m.color):'var(--surface-3)'};color:${m?'#fff':'var(--ink-faint)'}">${m?esc(initials(m.name)):'?'}</span><div class="mid"><div class="t">${esc(t.title)}</div><div class="s">${m?esc(m.name):esc(L("unassigned"))}${t.loggedHours?` · ${t.loggedHours}h`:""}</div></div><span class="pill ${stCls[t.status||'todo']}" style="font-size:10px">${esc(L("ts_"+(t.status||'todo')))}</span></div>`;}).join("")}</div></div>`:"";
   const ledger=`<div class="card"><div class="card-h"><h2>${esc(L("ledger"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th class="r">${esc(L("amount"))}</th></tr></thead><tbody>${txs.length?txs.map(t=>`<tr><td class="muted">${fmtDate(t.date)}</td><td>${esc(catLabel(t.category))}</td><td class="r"><span class="money ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'−'}${money(t.amount).replace('−','')}</span></td></tr>`).join(""):`<tr><td colspan="3" class="empty">${esc(L("no_tx"))}</td></tr>`}</tbody></table></div></div>`;
   return head+kpis+taskList+ledger;
 }
@@ -904,7 +968,7 @@ async function convertQuote(id){const q=state.invoices.find(x=>x.id===id);if(!q)
   const d={kind:"invoice",seq:nextInvoiceSeq("invoice"),clientId:q.clientId,projectId:q.projectId||null,issueDate:todayISO(),dueDate:null,vatRate:q.vatRate,status:"draft",items:JSON.parse(JSON.stringify(q.items||[])),notes:q.notes||"",createdAt:new Date().toISOString()};
   try{const newId=await createInvoiceDoc(d);const qd={...q,status:"accepted",updatedAt:new Date().toISOString()};delete qd.id;await setRec("invoices",id,qd,true);toast(L("converted"));invoiceId=newId;go("invoice");}catch(e){toast((e&&e.message)||"Error");}
 }
-async function createInvoiceDoc(data){if(backend==="db"){const ref=await dbCap.collection("invoices").add(data);logAct("act_created","invoices",actLabel("invoices",data));return ref.id;}const nid=uid();state.invoices.push({id:nid,...data});saveLocal();render();logAct("act_created","invoices",actLabel("invoices",data));return nid;}
+async function createInvoiceDoc(data){if(backend==="db"){const ref=await dbCap.collection("invoices").add(data);logAct("act_created","invoices",actLabel("invoices",data));return ref.id;}const nid=uid();state.invoices.push({id:nid,...data});if(!saveLocal()){state.invoices.pop();render();throw storageFail();}render();logAct("act_created","invoices",actLabel("invoices",data));return nid;}
 function viewInvoice(id){invoiceId=id;const inv=state.invoices.find(x=>x.id===id);if(inv)invTab=inv.kind||"invoice";go('invoice');}
 function invoiceDetail(){
   const inv=state.invoices.find(x=>x.id===invoiceId);
@@ -944,7 +1008,7 @@ function openInvoice(id,presetKind){
   window._invItems=JSON.parse(JSON.stringify(inv.items&&inv.items.length?inv.items:[{desc:"",qty:1,rate:0}]));window._invBillTasks=[];
   const cOpts=`<option value="">${esc(L("none"))}</option>`+state.clients.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(c=>`<option value="${c.id}" ${inv.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
   const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${inv.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
-  const stList=isQ?["draft","sent","accepted","declined"]:["draft","sent","paid"];
+  const stList=isQ?["draft","sent","accepted","declined"]:(inv.status==="paid"?["paid"]:["draft","sent"]);
   const stOpts=stList.map(s=>`<option value="${s}" ${(inv.status||"draft")===s?"selected":""}>${esc(isQ&&(s==="accepted"||s==="declined")?L("q_"+s):L("iv_"+s))}</option>`).join("");
   modalHost().innerHTML=shell(id?(isQ?L("edit_quote"):L("edit_invoice")):(isQ?L("new_quote"):L("new_invoice")),`<div class="modal-b">
     <div class="row2">${field("iv_client",L("client")+" *",`<select id="iv_client">${cOpts}</select>`)}${field("iv_proj",L("project"),`<select id="iv_proj">${pOpts}</select>`)}</div>
@@ -961,16 +1025,26 @@ function openInvoice(id,presetKind){
     if(inv.paidTransactionId)d.paidTransactionId=inv.paidTransactionId;if(!id)d.createdAt=new Date().toISOString();
     const b=document.getElementById("mSubmit");b.disabled=true;b.style.opacity=".6";
     try{ if(id)await setRec("invoices",id,d);else await addRec("invoices",d);
-      for(const tid of (window._invBillTasks||[])){const tk=state.tasks.find(x=>x.id===tid);if(tk&&!tk.billed){const td={...tk,billed:true,updatedAt:new Date().toISOString()};delete td.id;try{await setRec("tasks",tid,td,true);}catch(e){}}}
+      if(!id)bumpSeq(kind,d.seq);
+      if(d.status==="paid"&&d.paidTransactionId){const tx=state.transactions.find(x=>x.id===d.paidTransactionId);
+        if(tx){const td={amount:invTotal(d),taxRate:d.vatRate||0,clientId:d.clientId||null,projectId:d.projectId||null,updatedAt:new Date().toISOString()};try{await setRec("transactions",d.paidTransactionId,td,true);}catch(e){}}}
+      const billIds=window._invItems.map(it=>it._taskId).filter(Boolean);
+      for(const tid of billIds){const tk=state.tasks.find(x=>x.id===tid);if(tk&&!tk.billed){try{await setRec("tasks",tid,{billed:true,updatedAt:new Date().toISOString()},true);}catch(e){}}}
       closeModal();toast(L("saved"));
     }catch(e){b.disabled=false;b.style.opacity="1";if(e&&e.code==="invalid_argument"){readOnly=true;closeModal();render();toast(L("readonly_note"));}else toast((e&&e.message)||"Error");}};
 }
-function invPullHours(){const cid=val("iv_client");if(!cid){shake("iv_client");return;}const tasks=unbilledTasksForClient(cid);if(!tasks.length){toast(L("no_unbilled"));return;}window._invBillTasks=window._invBillTasks||[];tasks.forEach(t=>{const hrs=Number(t.loggedHours)||0;window._invItems.push({desc:t.title+" ("+hrs+"h)",qty:hrs,rate:memberBillRate(t.assigneeId)});window._invBillTasks.push(t.id);});document.getElementById("invItems").innerHTML=invItemsHTML();invRecalc();toast(tasks.length+" · "+L("unbilled"));}
+function invPullHours(){const cid=val("iv_client");if(!cid){shake("iv_client");return;}
+  const tasks=unbilledTasksForClient(cid).filter(t=>!window._invItems.some(it=>it._taskId===t.id));
+  if(!tasks.length){toast(L("no_unbilled"));return;}
+  let added=0,skipped=0;
+  tasks.forEach(t=>{const rate=memberBillRate(t.assigneeId);if(!rate){skipped++;return;}const hrs=Number(t.loggedHours)||0;window._invItems.push({desc:t.title+" ("+hrs+"h)",qty:hrs,rate,_taskId:t.id});added++;});
+  document.getElementById("invItems").innerHTML=invItemsHTML();invRecalc();
+  toast(added?(added+" · "+L("unbilled")+(skipped?" (+"+skipped+" @0)":"")):L("no_unbilled"));}
 async function markInvoicePaid(id){const inv=state.invoices.find(x=>x.id===id);if(!inv)return;
   const d={...inv,status:"paid",updatedAt:new Date().toISOString()};delete d.id;
   try{
     if(!inv.paidTransactionId){const tx={type:"income",amount:invTotal(inv),date:todayISO(),category:"payment",taxRate:inv.vatRate||0,projectId:inv.projectId||null,clientId:inv.clientId||null,status:"received",description:invNumber(inv),invoiceId:inv.id,createdAt:new Date().toISOString()};
-      if(backend==="db"){const ref=await dbCap.collection("transactions").add(tx);d.paidTransactionId=ref.id;}else{const nid=uid();state.transactions.push({id:nid,...tx});d.paidTransactionId=nid;saveLocal();}}
+      if(backend==="db"){const ref=await dbCap.collection("transactions").add(tx);d.paidTransactionId=ref.id;}else{const nid=uid();state.transactions.push({id:nid,...tx});if(!saveLocal()){state.transactions.pop();throw storageFail();}d.paidTransactionId=nid;}}
     await setRec("invoices",id,d);toast(L("saved"));
   }catch(e){toast((e&&e.message)||"Error");}
 }
@@ -978,11 +1052,19 @@ async function markInvoicePaid(id){const inv=state.invoices.find(x=>x.id===id);i
 function exportBackup(){try{const data={app:"mizan",version:1,exportedAt:new Date().toISOString(),clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring,settings:state.settings};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="mizan-backup-"+todayISO()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);toast(L("exported"));}catch(e){toast("Export not available here");}}
 let _pendingImport=null;
-function importBackupFile(input){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{_pendingImport=JSON.parse(r.result);confirmImport();}catch(e){toast("Bad file");}};r.readAsText(f);input.value="";}
-function confirmImport(){modalHost().innerHTML=shell(L("import_backup"),`<div class="modal-b"><p style="margin:6px 0 4px;font-size:15px;font-weight:600">${esc(L("import_confirm"))}</p></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn" id="mSubmit" style="background:var(--neg);border-color:var(--neg);color:#fff">${esc(L("import_backup"))}</button></div>`);document.getElementById("mSubmit").onclick=()=>applyImport();}
+function importBackupFile(input){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{let d=null;try{d=JSON.parse(r.result);}catch(e){toast("Bad file");return;}
+    if(!d||typeof d!=="object"||Array.isArray(d)||!COLLS.some(k=>Array.isArray(d[k]))){toast("Bad file");return;}
+    _pendingImport=d;confirmImport();};
+  r.readAsText(f);input.value="";}
+function confirmImport(){const d=_pendingImport||{};
+  const counts=COLLS.filter(k=>Array.isArray(d[k])&&d[k].length).map(k=>`${d[k].length} ${esc(L("nav_"+k)||k)}`).join(" · ")||"—";
+  modalHost().innerHTML=shell(L("import_backup"),`<div class="modal-b"><p style="margin:6px 0 8px;font-size:15px;font-weight:600">${esc(L("import_confirm"))}</p><div class="tag" style="display:block;padding:10px 12px;line-height:1.7">${counts}</div></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn" id="mSubmit" style="background:var(--neg);border-color:var(--neg);color:#fff">${esc(L("import_backup"))}</button></div>`);
+  document.getElementById("mSubmit").onclick=()=>applyImport();}
+function dismissNote(){noteDismissed=true;try{localStorage.setItem("mizan_note_dismissed","1");}catch(e){}render();}
 async function applyImport(){const d=_pendingImport;if(!d)return;const b=document.getElementById("mSubmit");if(b)b.disabled=true;
   try{["clients","projects","transactions","members","tasks","invoices","recurring"].forEach(k=>{if(Array.isArray(d[k]))state[k]=d[k];});if(d.settings)state.settings={...state.settings,...d.settings};
-    if(backend==="db"){for(const k of ["clients","projects","transactions","members","tasks","invoices","recurring"]){if(Array.isArray(d[k]))for(const it of d[k]){const id=it.id;if(!id)continue;const body={...it};delete body.id;try{await dbCap.collection(k).doc(id).set(body);}catch(e){}}}try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}}else saveLocal();
+    if(backend==="db"){for(const k of ["clients","projects","transactions","members","tasks","invoices","recurring"]){if(Array.isArray(d[k]))for(const it of d[k]){const id=it.id;if(!id)continue;const body={...it};delete body.id;try{await dbCap.collection(k).doc(id).set(body);}catch(e){}}}try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}}else{loadFailed=false;if(!saveLocal())throw storageFail();}
     closeModal();render();toast(L("restored"));
   }catch(e){if(b)b.disabled=false;toast((e&&e.message)||"Error");}}
 function triggerImport(){const el=document.getElementById("importFile");if(el)el.click();}
@@ -1022,7 +1104,7 @@ function openProject(id){
     await save(()=>id?setRec("projects",id,d):addRec("projects",d));};
 }
 function openTx(type,id){
-  const isInc=type==="income",t=id?state.transactions.find(x=>x.id===id):{type,date:todayISO(),status:"received",taxRate:state.settings.vatRate};
+  const isInc=type==="income",t=id?state.transactions.find(x=>x.id===id):{type,date:todayISO(),status:"received",taxRate:(type==="income"?state.settings.vatRate:0)};
   const cats=(isInc?INCOME_CATS:EXPENSE_CATS).map(c=>`<option value="${c}" ${t.category===c?"selected":""}>${esc(catLabel(c))}</option>`).join("");
   const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${t.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
   const statusSeg=isInc?`<div class="field"><label>${esc(L("payment"))}</label><div class="seg-in"><button type="button" id="st_received" class="${t.status!=='pending'?'on':''}" onclick="txStatusPick('received')">${esc(L("st_received"))}</button><button type="button" id="st_pending" class="${t.status==='pending'?'on':''}" onclick="txStatusPick('pending')">${esc(L("st_pending"))}</button></div></div>`:"";
@@ -1083,7 +1165,7 @@ function openTask(id,presetStatus){
 }
 function taskBill(v){window._taskBill=!!v;document.getElementById("bi_yes").classList.toggle("on",!!v);document.getElementById("bi_no").classList.toggle("on",!v);}
 function openTeam(){
-  const rows=state.members.length?state.members.map(m=>`<div class="lrow" style="cursor:default"><span class="mav" style="background:${m.color||'#5a6270'};width:34px;height:34px;font-size:12px">${esc(initials(m.name))}</span>
+  const rows=state.members.length?state.members.map(m=>`<div class="lrow" style="cursor:default"><span class="mav" style="background:${safeColor(m.color)};width:34px;height:34px;font-size:12px">${esc(initials(m.name))}</span>
     <div class="mid"><div class="t">${esc(m.name)}${m.active===false?` <span class="tag">—</span>`:""}</div><div class="s">${esc(m.role||"—")}${m.billableRate?` · ${esc(L("billable_rate"))} ${fmtNum(m.billableRate,0)}${esc(L("curr"))}${esc(L("hr"))}`:""}</div></div>
     ${readOnly?"":`<button class="close" style="width:30px;height:30px" onclick="openMember('${m.id}')">${I.edit}</button><button class="close danger" style="width:30px;height:30px" onclick="delMember('${m.id}')">${I.trash}</button>`}</div>`).join(""):`<div class="empty" style="padding:26px"><div class="eic">${I.user}</div><h3>${esc(L("no_members_h"))}</h3><p>${esc(L("no_members_p"))}</p></div>`;
   modalHost().innerHTML=shell(L("team"),`<div class="modal-b"><div class="list" style="padding:2px 0">${rows}</div></div>
@@ -1092,7 +1174,7 @@ function openTeam(){
 function openMember(id){
   const m=id?state.members.find(x=>x.id===id):{color:MEMBER_COLORS[state.members.length%MEMBER_COLORS.length],active:true};
   window._mcolor=m.color||MEMBER_COLORS[0];
-  const sw=MEMBER_COLORS.map(c=>`<button type="button" class="mcol" data-c="${c}" onclick="pickColor('${c}')" style="width:26px;height:26px;border-radius:50%;border:2px solid ${c===window._mcolor?'var(--ink)':'transparent'};background:${c};cursor:pointer"></button>`).join("");
+  const sw=MEMBER_COLORS.map(c=>`<button type="button" class="mcol" data-c="${c}" onclick="pickColor('${c}')" style="width:26px;height:26px;border-radius:50%;border:2px solid ${c===window._mcolor?'var(--ink)':'transparent'};background:${safeColor(c)};cursor:pointer"></button>`).join("");
   modalHost().innerHTML=shell(id?L("edit_member"):L("add_member"),`<div class="modal-b">
     ${field("m_name",L("name")+" *",`<input id="m_name" required value="${esc(m.name||"")}">`)}
     ${field("m_role",L("role"),`<input id="m_role" value="${esc(m.role||"")}" placeholder="—">`)}
@@ -1115,7 +1197,7 @@ function openRecurring(){
   modalHost().innerHTML=shell(L("recurring"),`<div class="modal-b"><p class="muted" style="margin:2px 0 12px;font-size:12.5px">${esc(L("recurring_sub"))}</p><div class="list" style="padding:2px 0">${rows}</div></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button>${readOnly?"":`<button type="button" class="btn accent" onclick="openRecurringRule()">${I.plus}${esc(L("add_recurring"))}</button>`}</div>`);
 }
 function openRecurringRule(id){
-  const r=id?state.recurring.find(x=>x.id===id):{kind:"expense",dayOfMonth:1,startMonth:ymNow(),active:true,taxRate:state.settings.vatRate};
+  const r=id?state.recurring.find(x=>x.id===id):{kind:"expense",dayOfMonth:1,startMonth:ymNow(),active:true,taxRate:0};
   window._recKind=r.kind||"expense";
   const cats=(window._recKind==="income"?INCOME_CATS:EXPENSE_CATS).map(c=>`<option value="${c}" ${r.category===c?"selected":""}>${esc(catLabel(c))}</option>`).join("");
   const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${r.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
@@ -1140,6 +1222,14 @@ function openActivity(){
   const kl={clients:L("client"),projects:L("project"),transactions:L("amount"),tasks:L("nav_tasks"),invoices:L("invoice"),members:L("member"),recurring:L("recurring")};
   const rows=state.activity.length?state.activity.map(a=>`<div class="lrow" style="cursor:default"><span style="width:8px;height:8px;border-radius:50%;background:${a.action==='act_created'?'var(--pos)':a.action==='act_deleted'?'var(--neg)':'var(--accent)'};flex:0 0 auto"></span><div class="mid"><div class="t" style="font-weight:500;font-size:13px"><b style="font-weight:700">${esc(L(a.action))}</b> ${esc(kl[a.kind]||a.kind)}${a.label?` · <span class="muted">${esc(a.label)}</span>`:""}</div></div><span class="s" style="color:var(--ink-faint);white-space:nowrap">${timeAgo(a.ts)} ${esc(L("ago"))}</span></div>`).join(""):`<div class="empty" style="padding:24px"><p style="margin:0">${esc(L("no_activity_log"))}</p></div>`;
   modalHost().innerHTML=shell(L("activity_log"),`<div class="modal-b"><div class="list" style="padding:2px 0;max-height:58vh;overflow:auto">${rows}</div></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button></div>`);
+}
+async function cascadeDel(coll,id){
+  if(coll==="invoices"){const inv=state.invoices.find(x=>x.id===id);
+    if(inv&&inv.paidTransactionId){try{await delRec("transactions",inv.paidTransactionId,true);}catch(e){}}}
+  if(coll==="transactions"){const tx=state.transactions.find(x=>x.id===id);
+    if(tx&&tx.invoiceId){const inv=state.invoices.find(x=>x.id===tx.invoiceId);
+      if(inv){try{await setRec("invoices",inv.id,{status:"sent",paidTransactionId:null,updatedAt:new Date().toISOString()},true);}catch(e){}}}}
+  await delRec(coll,id);
 }
 function confirmDel(coll,id){
   modalHost().innerHTML=shell(L("delete"),`<div class="modal-b"><p style="margin:6px 0 4px;font-size:16px;font-weight:600">${esc(L("confirm_del"))}</p><p class="muted" style="margin:0">${esc(L("confirm_del_body"))}</p></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn" id="mSubmit" style="background:var(--neg);border-color:var(--neg);color:#fff">${esc(L("delete"))}</button></div>`);
