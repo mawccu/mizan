@@ -375,6 +375,9 @@ const T={
   start_timer:"Start",stop_timer:"Stop",running:"running",log_time:"Log time",pull_hours:"Pull billable hours",unbilled:"unbilled",billed:"billed",no_unbilled:"No unbilled hours for this client.",
   labor:"Labor cost",est_labor:"Est. labor",profit_after_labor:"Profit after labor",gross_profit:"Gross profit",
   statement:"Statement",client_statement:"Client statement",project_overview:"Project overview",total_invoiced:"Invoiced",total_paid:"Paid",ledger:"Ledger",overview:"Overview",no_tx:"No transactions yet.",contact:"Contact",tag:"Tags",tags_ph:"e.g. urgent, design",filter:"Filter",my_open:"Open",all_tasks:"All",
+  tab_invoices:"Invoices",tab_quotes:"Quotes",new_quote:"New quote",edit_quote:"Edit quote",quote:"Quote",quote_no:"Quote no.",convert_to_invoice:"Convert to invoice",converted:"Converted to invoice",q_accepted:"Accepted",q_declined:"Declined",no_quotes_h:"No quotes yet",no_quotes_p:"Create a quote and convert it to an invoice when accepted.",
+  recurring:"Recurring",recurring_sub:"Rent, salaries, retainers — generated automatically each month.",add_recurring:"Add recurring",edit_recurring:"Edit recurring",manage_recurring:"Recurring",day_of_month:"Day of month",starts:"Starts",active_l:"Active",label_l:"Label",every_month:"every month",no_recurring:"No recurring rules yet.",generated_n:"recurring entries added",
+  activity_log:"Activity log",activity_l:"Activity",no_activity_log:"No activity yet.",act_created:"created",act_updated:"updated",act_deleted:"deleted",you:"You",ago:"ago",
  },
  ar:{appName:"ميزان",tagline:"حسابات الشركة",
   nav_dashboard:"الرئيسية",nav_clients:"العملاء",nav_projects:"المشاريع",nav_income:"الإيرادات",nav_expenses:"المصروفات",nav_reports:"التقارير",
@@ -430,6 +433,9 @@ const T={
   start_timer:"ابدأ",stop_timer:"إيقاف",running:"قيد التشغيل",log_time:"تسجيل وقت",pull_hours:"سحب الساعات القابلة للفوترة",unbilled:"غير مفوترة",billed:"مفوترة",no_unbilled:"لا توجد ساعات غير مفوترة لهذا العميل.",
   labor:"تكلفة العمالة",est_labor:"العمالة التقديرية",profit_after_labor:"الربح بعد العمالة",gross_profit:"الربح الإجمالي",
   statement:"كشف حساب",client_statement:"كشف حساب العميل",project_overview:"نظرة عامة على المشروع",total_invoiced:"مفوتر",total_paid:"مدفوع",ledger:"دفتر الأستاذ",overview:"نظرة عامة",no_tx:"لا توجد حركات بعد.",contact:"التواصل",tag:"وسوم",tags_ph:"مثال: عاجل، تصميم",filter:"تصفية",my_open:"مفتوحة",all_tasks:"الكل",
+  tab_invoices:"الفواتير",tab_quotes:"عروض الأسعار",new_quote:"عرض سعر جديد",edit_quote:"تعديل عرض السعر",quote:"عرض سعر",quote_no:"رقم العرض",convert_to_invoice:"تحويل إلى فاتورة",converted:"تم التحويل إلى فاتورة",q_accepted:"مقبول",q_declined:"مرفوض",no_quotes_h:"لا توجد عروض بعد",no_quotes_p:"أنشئ عرض سعر وحوّله إلى فاتورة عند القبول.",
+  recurring:"متكرر",recurring_sub:"إيجار، رواتب، اشتراكات — تُنشأ تلقائيًا كل شهر.",add_recurring:"إضافة متكرر",edit_recurring:"تعديل المتكرر",manage_recurring:"المتكررة",day_of_month:"يوم من الشهر",starts:"يبدأ",active_l:"نشط",label_l:"التسمية",every_month:"كل شهر",no_recurring:"لا توجد قواعد متكررة بعد.",generated_n:"حركة متكررة أُضيفت",
+  activity_log:"سجل النشاط",activity_l:"النشاط",no_activity_log:"لا يوجد نشاط بعد.",act_created:"أنشأ",act_updated:"عدّل",act_deleted:"حذف",you:"أنت",ago:"مضت",
  }
 };
 const INCOME_CATS=["deposit","payment","final","retainer","other"];
@@ -445,27 +451,49 @@ function L(k){return (T[lang]&&T[lang][k])||T.en[k]||k;}
 function catLabel(c){return L("cat_"+c)||c;}
 
 /* ===================== state / store ===================== */
-const state={clients:[],projects:[],transactions:[],members:[],tasks:[],invoices:[],settings:{company:"",vatRate:16,tin:"",address:""}};
-let view="dashboard",readOnly=false,backend="loading",dbCap=null,userCap=null,chartMonths=6,reportPeriod="month",dashPeriod="all",invoiceId=null,detailId=null,taskFilter="all";
-let justNavigated=true,paletteOpen=false,timerTick=null;
+const state={clients:[],projects:[],transactions:[],members:[],tasks:[],invoices:[],recurring:[],activity:[],settings:{company:"",vatRate:16,tin:"",address:""}};
+let view="dashboard",readOnly=false,backend="loading",dbCap=null,userCap=null,chartMonths=6,reportPeriod="month",dashPeriod="all",invoiceId=null,detailId=null,taskFilter="all",invTab="invoice";
+let justNavigated=true,paletteOpen=false,timerTick=null,ranRecurring=false;
 const filters={clientSearch:"",projSearch:"",incSearch:"",expSearch:"",projStatus:"all"};
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 
 async function initStore(){
   try{dbCap=await claude.use("db");}catch(e){dbCap=null;}
   try{userCap=await claude.use("user"); if(userCap){const cw=userCap.can?userCap.can("data.write"):true; if(cw===false)readOnly=true;}}catch(e){userCap=null;}
-  if(dbCap){ backend="db"; ["clients","projects","transactions","members","tasks","invoices"].forEach(subscribe);
+  try{state.activity=JSON.parse(localStorage.getItem("mizan_activity")||"[]");}catch(e){state.activity=[];}
+  if(dbCap){ backend="db"; ["clients","projects","transactions","members","tasks","invoices","recurring"].forEach(subscribe);
     try{dbCap.doc("settings/app").onSnapshot(s=>{if(s.exists)state.settings={...state.settings,...s.data()};render();});}catch(e){}
     render();
-  } else { backend="local"; loadLocal(); render(); }
+    setTimeout(()=>generateRecurring(),2200);
+  } else { backend="local"; loadLocal(); render(); generateRecurring(); }
+}
+function logAct(action,kind,label){try{state.activity.unshift({ts:Date.now(),action,kind,label:label||""});if(state.activity.length>200)state.activity.length=200;localStorage.setItem("mizan_activity",JSON.stringify(state.activity));}catch(e){}}
+function ymNow(){return new Date().toISOString().slice(0,7);}
+function nextYM(ym){let[y,m]=ym.split("-").map(Number);m++;if(m>12){m=1;y++;}return y+"-"+String(m).padStart(2,"0");}
+async function generateRecurring(){
+  if(ranRecurring||readOnly)return;ranRecurring=true;const cur=ymNow();let added=0;
+  for(const r of state.recurring){ if(r.active===false)continue;
+    let m=r.lastMonth?nextYM(r.lastMonth):(r.startMonth||cur);
+    let guard=0,lastGen=r.lastMonth;
+    while(m<=cur&&guard++<60){
+      const day=String(Math.min(28,Math.max(1,Number(r.dayOfMonth)||1))).padStart(2,"0");
+      const tx={type:r.kind||"expense",amount:Number(r.amount)||0,date:m+"-"+day,category:r.category||"other",taxRate:Number(r.taxRate)||0,projectId:r.projectId||null,clientId:r.clientId||null,description:r.label||"",recurringId:r.id};
+      if((tx.type)==="income")tx.status="received";tx.createdAt=new Date().toISOString();
+      try{ if(backend==="db")await dbCap.collection("transactions").add(tx); else {state.transactions.push({id:uid(),...tx});} added++; }catch(e){}
+      lastGen=m; m=nextYM(m);
+    }
+    if(lastGen&&lastGen!==r.lastMonth){ const rd={...r,lastMonth:lastGen,updatedAt:new Date().toISOString()};delete rd.id; try{await setRec("recurring",r.id,rd,true);}catch(e){} }
+  }
+  if(added){ if(backend==="local")saveLocal(); render(); toast(added+" "+L("generated_n")); }
 }
 function subscribe(coll){ try{dbCap.collection(coll).onSnapshot(s=>{state[coll]=s.docs.map(d=>({id:d.id,...d.data()}));render();},e=>{if(e&&e.code==="revoked"){readOnly=true;render();}});}catch(e){} }
-function loadLocal(){ try{const r=localStorage.getItem("mizan_data"); if(r){const d=JSON.parse(r);state.clients=d.clients||[];state.projects=d.projects||[];state.transactions=d.transactions||[];state.members=d.members||[];state.tasks=d.tasks||[];state.invoices=d.invoices||[];}
+function loadLocal(){ try{const r=localStorage.getItem("mizan_data"); if(r){const d=JSON.parse(r);state.clients=d.clients||[];state.projects=d.projects||[];state.transactions=d.transactions||[];state.members=d.members||[];state.tasks=d.tasks||[];state.invoices=d.invoices||[];state.recurring=d.recurring||[];}
   const s=localStorage.getItem("mizan_settings"); if(s)state.settings={...state.settings,...JSON.parse(s)};}catch(e){} }
-function saveLocal(){ try{localStorage.setItem("mizan_data",JSON.stringify({clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices}));}catch(e){} }
-async function addRec(c,d){ if(backend==="db")await dbCap.collection(c).add(d); else{state[c].push({id:uid(),...d});saveLocal();render();} }
-async function setRec(c,id,d){ if(backend==="db")await dbCap.collection(c).doc(id).set(d); else{const i=state[c].findIndex(x=>x.id===id);if(i>-1)state[c][i]={id,...d};saveLocal();render();} }
-async function delRec(c,id){ if(backend==="db")await dbCap.collection(c).doc(id).delete(); else{state[c]=state[c].filter(x=>x.id!==id);saveLocal();render();} }
+function saveLocal(){ try{localStorage.setItem("mizan_data",JSON.stringify({clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring}));}catch(e){} }
+function actLabel(c,d){if(!d)return"";if(c==="invoices")return (d.kind==="quote"?"QUO":"INV")+"-"+String(d.seq||0).padStart(4,"0");return d.name||d.title||d.label||d.description||(d.amount!=null?fmtNum(d.amount)+" "+L("curr"):"");}
+async function addRec(c,d,silent){ if(backend==="db")await dbCap.collection(c).add(d); else{state[c].push({id:uid(),...d});saveLocal();render();} if(!silent)logAct("act_created",c,actLabel(c,d)); }
+async function setRec(c,id,d,silent){ if(backend==="db")await dbCap.collection(c).doc(id).set(d); else{const i=state[c].findIndex(x=>x.id===id);if(i>-1)state[c][i]={id,...d};saveLocal();render();} if(!silent)logAct("act_updated",c,actLabel(c,d)); }
+async function delRec(c,id,silent){ const before=state[c].find(x=>x.id===id); if(backend==="db")await dbCap.collection(c).doc(id).delete(); else{state[c]=state[c].filter(x=>x.id!==id);saveLocal();render();} if(!silent)logAct("act_deleted",c,actLabel(c,before)); }
 async function saveSettings(obj){ state.settings={...state.settings,...obj};
   if(backend==="db"){try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}} else {try{localStorage.setItem("mizan_settings",JSON.stringify(state.settings));}catch(e){}}
   render(); }
@@ -501,9 +529,11 @@ function overdueTaskCount(mid){return state.tasks.filter(t=>t.assigneeId===mid&&
 function invSubtotal(inv){return (inv.items||[]).reduce((a,it)=>a+(Number(it.qty)||0)*(Number(it.rate)||0),0);}
 function invVat(inv){return invSubtotal(inv)*(Number(inv.vatRate)||0)/100;}
 function invTotal(inv){return invSubtotal(inv)+invVat(inv);}
-function invStatus(inv){if(inv.status==="paid")return"paid";if(inv.status!=="draft"&&inv.dueDate&&inv.dueDate<todayISO())return"overdue";return inv.status||"draft";}
-function nextInvoiceSeq(){return state.invoices.reduce((m,i)=>Math.max(m,Number(i.seq)||0),0)+1;}
-function invNumber(inv){return "INV-"+String(inv.seq||0).padStart(4,"0");}
+function invStatus(inv){if((inv.kind||"invoice")==="quote")return inv.status||"draft";if(inv.status==="paid")return"paid";if(inv.status!=="draft"&&inv.dueDate&&inv.dueDate<todayISO())return"overdue";return inv.status||"draft";}
+function nextInvoiceSeq(kind){kind=kind||"invoice";return state.invoices.filter(i=>(i.kind||"invoice")===kind).reduce((m,i)=>Math.max(m,Number(i.seq)||0),0)+1;}
+function invNumber(inv){return ((inv.kind==="quote")?"QUO-":"INV-")+String(inv.seq||0).padStart(4,"0");}
+function invStPill(st){return {paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold",accepted:"received",declined:"overdue"}[st]||"on_hold";}
+function invStLabel(inv,st){return (inv.kind==="quote"&&(st==="accepted"||st==="declined"))?L("q_"+st):L("iv_"+st);}
 function dashTotals(){return totals(state.transactions.filter(t=>inPeriod(t,dashPeriod)));}
 function budgetState(p){const s=projStats(p.id),b=Number(p.budget)||0;if(!b)return null;if(s.exp>b)return"over";if(s.inc>=b)return"full";return"ok";}
 
@@ -561,8 +591,8 @@ function render(){
 }
 function taskRunning(t){return !!t.timerStart;}
 function elapsedHours(t){return t.timerStart?(Date.now()-new Date(t.timerStart).getTime())/3600000:0;}
-async function startTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;const d={...t,timerStart:new Date().toISOString(),status:t.status==="todo"?"doing":(t.status||"doing"),updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d);}
-async function stopTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t||!t.timerStart)return;const d={...t,loggedHours:Math.round(((Number(t.loggedHours)||0)+elapsedHours(t))*100)/100,timerStart:null,updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d);}
+async function startTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t)return;const d={...t,timerStart:new Date().toISOString(),status:t.status==="todo"?"doing":(t.status||"doing"),updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d,true);}
+async function stopTimer(id){const t=state.tasks.find(x=>x.id===id);if(!t||!t.timerStart)return;const d={...t,loggedHours:Math.round(((Number(t.loggedHours)||0)+elapsedHours(t))*100)/100,timerStart:null,updatedAt:new Date().toISOString()};delete d.id;await setRec("tasks",id,d,true);}
 function updateTimers(){document.querySelectorAll("[data-tstart]").forEach(el=>{const s=el.getAttribute("data-tstart"),base=Number(el.getAttribute("data-base"))||0;el.textContent=(base+(Date.now()-new Date(s).getTime())/3600000).toFixed(2)+"h";});}
 function manageTimerTick(){const any=state.tasks.some(t=>t.timerStart);if(any&&!timerTick){timerTick=setInterval(updateTimers,1000);updateTimers();}else if(!any&&timerTick){clearInterval(timerTick);timerTick=null;}}
 function rail(){
@@ -592,8 +622,9 @@ function topbar(){
   if(view==="client"||view==="project"){const isC=view==="client";const ent=isC?state.clients.find(x=>x.id===detailId):state.projects.find(x=>x.id===detailId);
     const act=`<button class="btn" onclick="go('${isC?'clients':'projects'}')">${esc(L("back"))}</button>${!readOnly&&ent?`<button class="btn" onclick="${isC?`openClient('${detailId}')`:`openProject('${detailId}')`}">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print"))}</button>`;
     return `<div class="topbar"><div><h1>${ent?esc(ent.name):"—"}</h1><div class="sub">${isC?esc(L("client_statement")):esc(clientName(ent&&ent.clientId)||L("project_overview"))}</div></div><div class="topcluster no-print">${act}</div></div>`;}
-  if(view==="invoice"){const inv=state.invoices.find(x=>x.id===invoiceId);
-    const act=`<button class="btn" onclick="go('invoices')">${esc(L("back"))}</button>${!readOnly&&inv&&invStatus(inv)!=='paid'?`<button class="btn" onclick="markInvoicePaid('${invoiceId}')">${I.check}${esc(L("mark_paid"))}</button>`:""}${!readOnly&&inv?`<button class="btn" onclick="openInvoice('${invoiceId}')">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print_invoice"))}</button>`;
+  if(view==="invoice"){const inv=state.invoices.find(x=>x.id===invoiceId);const isQ=inv&&(inv.kind||"invoice")==="quote";
+    const prim=!readOnly&&inv?(isQ?`<button class="btn" onclick="convertQuote('${invoiceId}')">${I.arrow}${esc(L("convert_to_invoice"))}</button>`:(invStatus(inv)!=='paid'?`<button class="btn" onclick="markInvoicePaid('${invoiceId}')">${I.check}${esc(L("mark_paid"))}</button>`:"")):"";
+    const act=`<button class="btn" onclick="go('invoices')">${esc(L("back"))}</button>${prim}${!readOnly&&inv?`<button class="btn" onclick="openInvoice('${invoiceId}')">${I.edit}${esc(L("edit"))}</button>`:""}<button class="btn primary" onclick="window.print()">${I.print}${esc(L("print_invoice"))}</button>`;
     return `<div class="topbar"><div><h1>${inv?esc(invNumber(inv)):esc(L("invoice"))}</h1><div class="sub">${inv?esc(clientName(inv.clientId)||"")+" · "+fmtDate(inv.issueDate):""}</div></div><div class="topcluster no-print">${act}</div></div>`;
   }
   const [t,s]=map[view];let action="";
@@ -824,7 +855,7 @@ function openProjectDetail(id){detailId=id;go('project');}
 function dstat(lbl,val,color,sub){return `<div class="stat"><div class="top">${esc(lbl)}</div><div class="big"><span class="money" style="color:${color||'var(--ink)'}">${typeof val==='number'?money(val):val}</span></div>${sub?`<div class="rowsub" style="margin-top:5px">${sub}</div>`:""}</div>`;}
 function clientDetail(){
   const c=state.clients.find(x=>x.id===detailId);if(!c)return emptyState("no_clients_h","no_clients_p","");
-  const invs=state.invoices.filter(i=>i.clientId===c.id).sort((a,b)=>(b.seq||0)-(a.seq||0));
+  const invs=state.invoices.filter(i=>i.clientId===c.id&&(i.kind||"invoice")==="invoice").sort((a,b)=>(b.seq||0)-(a.seq||0));
   const txs=state.transactions.filter(t=>t.clientId===c.id).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   let invoiced=0,outI=0;invs.forEach(i=>{const tt=invTotal(i);invoiced+=tt;if(invStatus(i)!=="paid")outI+=tt;});
   let received=0,pending=0;txs.forEach(t=>{if(t.type==="income"){if(isReceived(t))received+=+t.amount||0;else pending+=+t.amount||0;}});
@@ -832,7 +863,7 @@ function clientDetail(){
     <div style="display:flex;gap:14px;align-items:center"><span class="avatar" style="width:48px;height:48px;font-size:16px">${esc(initials(c.name))}</span><div><div style="font-family:var(--disp);font-weight:700;font-size:18px">${esc(c.name)}</div><div class="muted" style="font-size:13px">${esc(c.company||"—")}</div></div></div>
     <div class="muted" style="font-size:12.5px;text-align:end">${c.email?esc(c.email)+"<br>":""}${c.phone?esc(c.phone):""}</div></div></div>`;
   const kpis=`<div class="stat3" style="margin-bottom:15px">${dstat(L("total_invoiced"),invoiced)}${dstat(L("received"),received,'var(--pos)')}${dstat(L("outstanding"),outI+pending,'var(--warn)')}</div>`;
-  const invTable=invs.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("invoices"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("invoice_no"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th></tr></thead><tbody>${invs.map(i=>{const st=invStatus(i),cls={paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold"}[st];return `<tr onclick="viewInvoice('${i.id}')" style="cursor:pointer"><td class="mono strong">${esc(invNumber(i))}</td><td class="muted">${fmtDate(i.issueDate)}</td><td><span class="pill ${cls}">${esc(L("iv_"+st))}</span></td><td class="r money">${money(invTotal(i))}</td></tr>`;}).join("")}</tbody></table></div></div>`:"";
+  const invTable=invs.length?`<div class="card" style="margin-bottom:15px"><div class="card-h"><h2>${esc(L("invoices"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("invoice_no"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th></tr></thead><tbody>${invs.map(i=>{const st=invStatus(i);return `<tr onclick="viewInvoice('${i.id}')" style="cursor:pointer"><td class="mono strong">${esc(invNumber(i))}</td><td class="muted">${fmtDate(i.issueDate)}</td><td><span class="pill ${invStPill(st)}">${esc(invStLabel(i,st))}</span></td><td class="r money">${money(invTotal(i))}</td></tr>`;}).join("")}</tbody></table></div></div>`:"";
   const ledger=`<div class="card"><div class="card-h"><h2>${esc(L("ledger"))}</h2></div><div class="wrap"><table><thead><tr><th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th>${esc(L("project"))}</th><th class="r">${esc(L("amount"))}</th></tr></thead><tbody>${txs.length?txs.map(t=>`<tr><td class="muted">${fmtDate(t.date)}</td><td>${esc(catLabel(t.category))}${t.type==='income'&&t.status==='pending'?` <span class="pill pending" style="font-size:9.5px;padding:2px 6px">${esc(L("st_pending"))}</span>`:""}</td><td>${projName(t.projectId)?esc(projName(t.projectId)):'<span class="muted">—</span>'}</td><td class="r"><span class="money ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'−'}${money(t.amount).replace('−','')}</span></td></tr>`).join(""):`<tr><td colspan="4" class="empty">${esc(L("no_tx"))}</td></tr>`}</tbody></table></div></div>`;
   return head+kpis+invTable+ledger;
 }
@@ -854,33 +885,38 @@ function projectDetail(){
 
 /* ---------- invoices ---------- */
 function invoicesView(){
-  const list=[...state.invoices].sort((a,b)=>(b.seq||0)-(a.seq||0));
-  if(!list.length)return emptyState("no_invoices_h","no_invoices_p",readOnly?"":`<button class="btn accent" onclick="openInvoice()">${I.plus}${esc(L("new_invoice"))}</button>`);
-  let outstanding=0,paid=0;list.forEach(inv=>{const tt=invTotal(inv);if(invStatus(inv)==="paid")paid+=tt;else outstanding+=tt;});
-  const toolbar=`<div class="toolbar"><div class="totaltag">${esc(L("outstanding_inv"))}: <span class="money neg" style="margin-inline-start:6px">${money(outstanding)}</span></div><div class="totaltag">${esc(L("paid_inv"))}: <span class="money pos" style="margin-inline-start:6px">${money(paid)}</span></div></div>`;
-  const stCls={paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold"};
+  const isQuote=invTab==="quote";
+  const list=state.invoices.filter(i=>(i.kind||"invoice")===invTab).sort((a,b)=>(b.seq||0)-(a.seq||0));
+  const tabs=`<div class="toolbar" style="justify-content:space-between"><div class="seg"><button class="${!isQuote?'on':''}" onclick="setInvTab('invoice')">${esc(L("tab_invoices"))}</button><button class="${isQuote?'on':''}" onclick="setInvTab('quote')">${esc(L("tab_quotes"))}</button></div>
+    ${list.length?`<div style="display:flex;gap:8px">${isQuote?`<div class="totaltag">${list.length} · ${esc(L("tab_quotes"))}</div>`:(()=>{let o=0,p=0;list.forEach(inv=>{const tt=invTotal(inv);if(invStatus(inv)==="paid")p+=tt;else o+=tt;});return `<div class="totaltag">${esc(L("outstanding_inv"))}: <span class="money neg" style="margin-inline-start:6px">${money(o)}</span></div><div class="totaltag">${esc(L("paid_inv"))}: <span class="money pos" style="margin-inline-start:6px">${money(p)}</span></div>`;})()}</div>`:""}</div>`;
+  if(!list.length)return tabs+emptyState(isQuote?"no_quotes_h":"no_invoices_h",isQuote?"no_quotes_p":"no_invoices_p",readOnly?"":`<button class="btn accent" onclick="openInvoice(null,'${invTab}')">${I.plus}${esc(isQuote?L("new_quote"):L("new_invoice"))}</button>`);
   const body=list.map(inv=>{const st=invStatus(inv);return `<tr onclick="viewInvoice('${inv.id}')" style="cursor:pointer">
     <td><span class="strong mono">${esc(invNumber(inv))}</span></td>
     <td>${esc(clientName(inv.clientId)||L("none"))}${projName(inv.projectId)?`<div class="rowsub">${esc(projName(inv.projectId))}</div>`:""}</td>
     <td class="muted" style="white-space:nowrap">${fmtDate(inv.issueDate)}${inv.dueDate?`<div class="rowsub">${esc(L("due"))}: ${fmtDate(inv.dueDate)}</div>`:""}</td>
-    <td><span class="pill ${stCls[st]}">${esc(L("iv_"+st))}</span></td>
+    <td><span class="pill ${invStPill(st)}">${esc(invStLabel(inv,st))}</span></td>
     <td class="r"><span class="money">${money(invTotal(inv))}</span></td>
     <td class="r" onclick="event.stopPropagation()">${rowActions(`openInvoice('${inv.id}')`,`confirmDel('invoices','${inv.id}')`)}</td></tr>`;}).join("");
-  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(L("invoice_no"))}</th><th>${esc(L("client"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
+  return tabs+`<div class="card"><div class="wrap"><table><thead><tr><th>${esc(isQuote?L("quote_no"):L("invoice_no"))}</th><th>${esc(L("client"))}</th><th>${esc(L("issue_date"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("grand_total"))}</th><th></th></tr></thead><tbody>${body}</tbody></table></div></div>`;
 }
-function viewInvoice(id){invoiceId=id;go('invoice');}
+function setInvTab(k){invTab=k;justNavigated=true;render();}
+async function convertQuote(id){const q=state.invoices.find(x=>x.id===id);if(!q)return;
+  const d={kind:"invoice",seq:nextInvoiceSeq("invoice"),clientId:q.clientId,projectId:q.projectId||null,issueDate:todayISO(),dueDate:null,vatRate:q.vatRate,status:"draft",items:JSON.parse(JSON.stringify(q.items||[])),notes:q.notes||"",createdAt:new Date().toISOString()};
+  try{const newId=await createInvoiceDoc(d);const qd={...q,status:"accepted",updatedAt:new Date().toISOString()};delete qd.id;await setRec("invoices",id,qd,true);toast(L("converted"));invoiceId=newId;go("invoice");}catch(e){toast((e&&e.message)||"Error");}
+}
+async function createInvoiceDoc(data){if(backend==="db"){const ref=await dbCap.collection("invoices").add(data);logAct("act_created","invoices",actLabel("invoices",data));return ref.id;}const nid=uid();state.invoices.push({id:nid,...data});saveLocal();render();logAct("act_created","invoices",actLabel("invoices",data));return nid;}
+function viewInvoice(id){invoiceId=id;const inv=state.invoices.find(x=>x.id===id);if(inv)invTab=inv.kind||"invoice";go('invoice');}
 function invoiceDetail(){
   const inv=state.invoices.find(x=>x.id===invoiceId);
   if(!inv)return emptyState("no_invoices_h","no_invoices_p","");
-  const c=state.clients.find(x=>x.id===inv.clientId),sub=invSubtotal(inv),vat=invVat(inv),tot=invTotal(inv),st=invStatus(inv);
-  const stCls={paid:"paid",overdue:"overdue",sent:"completed",draft:"on_hold"};
+  const c=state.clients.find(x=>x.id===inv.clientId),sub=invSubtotal(inv),vat=invVat(inv),tot=invTotal(inv),st=invStatus(inv),isQ=(inv.kind||"invoice")==="quote";
   const rows=(inv.items||[]).map(it=>`<tr><td>${esc(it.desc||"—")}</td><td class="r mono">${esc(it.qty||0)}</td><td class="r money">${money(it.rate)}</td><td class="r money">${money((Number(it.qty)||0)*(Number(it.rate)||0))}</td></tr>`).join("");
   return `<div class="card" style="max-width:820px;margin:0 auto;padding:34px 36px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:26px;flex-wrap:wrap">
       <div><div style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:8px;background:linear-gradient(150deg,var(--accent),var(--accent-4));color:#fff;display:grid;place-items:center">${I.logo}</span><div style="font-family:var(--disp);font-weight:700;font-size:19px">${esc(state.settings.company||L("appName"))}</div></div>
         ${state.settings.tin?`<div class="muted" style="font-size:12px;margin-top:6px">${esc(L("tin"))}: ${esc(state.settings.tin)}</div>`:""}
         ${state.settings.address?`<div class="muted" style="font-size:12px">${esc(state.settings.address)}</div>`:""}</div>
-      <div style="text-align:end"><div style="font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:-.02em">${esc(L("invoice"))}</div><div class="mono" style="color:var(--ink-soft);margin-top:2px">${esc(invNumber(inv))}</div><div style="margin-top:8px"><span class="pill ${stCls[st]}">${esc(L("iv_"+st))}</span></div></div>
+      <div style="text-align:end"><div style="font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:-.02em">${esc(isQ?L("quote"):L("invoice"))}</div><div class="mono" style="color:var(--ink-soft);margin-top:2px">${esc(invNumber(inv))}</div><div style="margin-top:8px"><span class="pill ${invStPill(st)}">${esc(invStLabel(inv,st))}</span></div></div>
     </div>
     <div style="display:flex;gap:40px;flex-wrap:wrap;margin-bottom:22px">
       <div><div class="rowsub" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${esc(L("bill_to"))}</div><div class="strong">${esc(c?c.name:L("none"))}</div>${c&&c.company?`<div class="muted" style="font-size:12.5px">${esc(c.company)}</div>`:""}${c&&c.email?`<div class="muted" style="font-size:12.5px">${esc(c.email)}</div>`:""}</div>
@@ -902,13 +938,15 @@ function invAddItem(){window._invItems.push({desc:"",qty:1,rate:0});document.get
 function invDelItem(i){window._invItems.splice(i,1);if(!window._invItems.length)window._invItems.push({desc:"",qty:1,rate:0});document.getElementById("invItems").innerHTML=invItemsHTML();invRecalc();}
 function invItemChange(i,f,v){if(window._invItems[i]){window._invItems[i][f]=v;invRecalc();}}
 function invRecalc(){const sub=window._invItems.reduce((a,it)=>a+(Number(it.qty)||0)*(Number(it.rate)||0),0);const vr=num("iv_vat");const el=document.getElementById("invTotals");if(el)el.textContent=fmtNum(sub*(1+vr/100))+" "+L("curr");}
-function openInvoice(id){
-  const inv=id?state.invoices.find(x=>x.id===id):{items:[{desc:"",qty:1,rate:0}],vatRate:state.settings.vatRate,issueDate:todayISO(),status:"draft"};
+function openInvoice(id,presetKind){
+  const inv=id?state.invoices.find(x=>x.id===id):{kind:presetKind||invTab||"invoice",items:[{desc:"",qty:1,rate:0}],vatRate:state.settings.vatRate,issueDate:todayISO(),status:"draft"};
+  const kind=inv.kind||"invoice",isQ=kind==="quote";
   window._invItems=JSON.parse(JSON.stringify(inv.items&&inv.items.length?inv.items:[{desc:"",qty:1,rate:0}]));window._invBillTasks=[];
   const cOpts=`<option value="">${esc(L("none"))}</option>`+state.clients.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(c=>`<option value="${c.id}" ${inv.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
   const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${inv.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
-  const stOpts=["draft","sent","paid"].map(s=>`<option value="${s}" ${(inv.status||"draft")===s?"selected":""}>${esc(L("iv_"+s))}</option>`).join("");
-  modalHost().innerHTML=shell(id?L("edit_invoice"):L("new_invoice"),`<div class="modal-b">
+  const stList=isQ?["draft","sent","accepted","declined"]:["draft","sent","paid"];
+  const stOpts=stList.map(s=>`<option value="${s}" ${(inv.status||"draft")===s?"selected":""}>${esc(isQ&&(s==="accepted"||s==="declined")?L("q_"+s):L("iv_"+s))}</option>`).join("");
+  modalHost().innerHTML=shell(id?(isQ?L("edit_quote"):L("edit_invoice")):(isQ?L("new_quote"):L("new_invoice")),`<div class="modal-b">
     <div class="row2">${field("iv_client",L("client")+" *",`<select id="iv_client">${cOpts}</select>`)}${field("iv_proj",L("project"),`<select id="iv_proj">${pOpts}</select>`)}</div>
     <div class="row3">${field("iv_issue",L("issue_date"),`<input id="iv_issue" type="date" value="${esc(inv.issueDate||todayISO())}">`)}${field("iv_due",L("due"),`<input id="iv_due" type="date" value="${esc(inv.dueDate||"")}">`)}${field("iv_status",L("status"),`<select id="iv_status">${stOpts}</select>`)}</div>
     <label style="font-size:12.5px;font-weight:600;color:var(--ink-soft)">${esc(L("line_items"))}</label>
@@ -919,11 +957,11 @@ function openInvoice(id){
   invRecalc();document.getElementById("iv_client").focus();
   document.getElementById("mSubmit").onclick=async()=>{const cid=val("iv_client");if(!cid)return shake("iv_client");
     const items=window._invItems.filter(it=>(it.desc||"").trim()||Number(it.qty)||Number(it.rate)).map(it=>({desc:it.desc||"",qty:Number(it.qty)||0,rate:Number(it.rate)||0}));
-    const d={seq:inv.seq||nextInvoiceSeq(),clientId:cid,projectId:val("iv_proj")||null,issueDate:val("iv_issue")||todayISO(),dueDate:val("iv_due")||null,vatRate:num("iv_vat"),status:val("iv_status"),items,notes:val("iv_notes"),updatedAt:new Date().toISOString()};
+    const d={kind,seq:inv.seq||nextInvoiceSeq(kind),clientId:cid,projectId:val("iv_proj")||null,issueDate:val("iv_issue")||todayISO(),dueDate:val("iv_due")||null,vatRate:num("iv_vat"),status:val("iv_status"),items,notes:val("iv_notes"),updatedAt:new Date().toISOString()};
     if(inv.paidTransactionId)d.paidTransactionId=inv.paidTransactionId;if(!id)d.createdAt=new Date().toISOString();
     const b=document.getElementById("mSubmit");b.disabled=true;b.style.opacity=".6";
     try{ if(id)await setRec("invoices",id,d);else await addRec("invoices",d);
-      for(const tid of (window._invBillTasks||[])){const tk=state.tasks.find(x=>x.id===tid);if(tk&&!tk.billed){const td={...tk,billed:true,updatedAt:new Date().toISOString()};delete td.id;try{await setRec("tasks",tid,td);}catch(e){}}}
+      for(const tid of (window._invBillTasks||[])){const tk=state.tasks.find(x=>x.id===tid);if(tk&&!tk.billed){const td={...tk,billed:true,updatedAt:new Date().toISOString()};delete td.id;try{await setRec("tasks",tid,td,true);}catch(e){}}}
       closeModal();toast(L("saved"));
     }catch(e){b.disabled=false;b.style.opacity="1";if(e&&e.code==="invalid_argument"){readOnly=true;closeModal();render();toast(L("readonly_note"));}else toast((e&&e.message)||"Error");}};
 }
@@ -937,14 +975,14 @@ async function markInvoicePaid(id){const inv=state.invoices.find(x=>x.id===id);i
   }catch(e){toast((e&&e.message)||"Error");}
 }
 /* backup / restore */
-function exportBackup(){try{const data={app:"mizan",version:1,exportedAt:new Date().toISOString(),clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,settings:state.settings};
+function exportBackup(){try{const data={app:"mizan",version:1,exportedAt:new Date().toISOString(),clients:state.clients,projects:state.projects,transactions:state.transactions,members:state.members,tasks:state.tasks,invoices:state.invoices,recurring:state.recurring,settings:state.settings};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="mizan-backup-"+todayISO()+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);toast(L("exported"));}catch(e){toast("Export not available here");}}
 let _pendingImport=null;
 function importBackupFile(input){const f=input.files&&input.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{_pendingImport=JSON.parse(r.result);confirmImport();}catch(e){toast("Bad file");}};r.readAsText(f);input.value="";}
 function confirmImport(){modalHost().innerHTML=shell(L("import_backup"),`<div class="modal-b"><p style="margin:6px 0 4px;font-size:15px;font-weight:600">${esc(L("import_confirm"))}</p></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn" id="mSubmit" style="background:var(--neg);border-color:var(--neg);color:#fff">${esc(L("import_backup"))}</button></div>`);document.getElementById("mSubmit").onclick=()=>applyImport();}
 async function applyImport(){const d=_pendingImport;if(!d)return;const b=document.getElementById("mSubmit");if(b)b.disabled=true;
-  try{["clients","projects","transactions","members","tasks","invoices"].forEach(k=>{if(Array.isArray(d[k]))state[k]=d[k];});if(d.settings)state.settings={...state.settings,...d.settings};
-    if(backend==="db"){for(const k of ["clients","projects","transactions","members","tasks","invoices"]){if(Array.isArray(d[k]))for(const it of d[k]){const id=it.id;if(!id)continue;const body={...it};delete body.id;try{await dbCap.collection(k).doc(id).set(body);}catch(e){}}}try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}}else saveLocal();
+  try{["clients","projects","transactions","members","tasks","invoices","recurring"].forEach(k=>{if(Array.isArray(d[k]))state[k]=d[k];});if(d.settings)state.settings={...state.settings,...d.settings};
+    if(backend==="db"){for(const k of ["clients","projects","transactions","members","tasks","invoices","recurring"]){if(Array.isArray(d[k]))for(const it of d[k]){const id=it.id;if(!id)continue;const body={...it};delete body.id;try{await dbCap.collection(k).doc(id).set(body);}catch(e){}}}try{await dbCap.doc("settings/app").set(state.settings);}catch(e){}}else saveLocal();
     closeModal();render();toast(L("restored"));
   }catch(e){if(b)b.disabled=false;toast((e&&e.message)||"Error");}}
 function triggerImport(){const el=document.getElementById("importFile");if(el)el.click();}
@@ -1013,6 +1051,7 @@ function openSettings(){
     <div class="row2">${field("s_tin",L("tin"),`<input id="s_tin" value="${esc(s.tin||"")}">`)}${field("s_vat",L("vat_rate")+" (%)",`<input id="s_vat" type="number" step="0.1" min="0" value="${esc(s.vatRate)}">`)}</div>
     ${field("s_addr",L("bill_to")+" / "+L("from_l"),`<input id="s_addr" value="${esc(s.address||"")}" placeholder="—">`)}
     <button type="button" class="btn" style="width:100%;justify-content:center;margin-top:2px" onclick="openTeam()">${I.user}${esc(L("manage_team"))} · ${state.members.length}</button>
+    <div style="display:flex;gap:9px;margin-top:9px"><button type="button" class="btn" style="flex:1;justify-content:center" onclick="openRecurring()">${I.clock}${esc(L("manage_recurring"))} · ${state.recurring.length}</button><button type="button" class="btn" style="flex:1;justify-content:center" onclick="openActivity()">${I.reports}${esc(L("activity_l"))}</button></div>
     <div style="border-top:1px solid var(--line);margin:14px 0 12px;padding-top:12px"><div style="font-weight:600;font-size:12.5px;color:var(--ink-soft);margin-bottom:9px">${esc(L("backup"))}</div>
       <div style="display:flex;gap:9px"><button type="button" class="btn" style="flex:1;justify-content:center" onclick="exportBackup()">${I.download}${esc(L("export_backup"))}</button><button type="button" class="btn" style="flex:1;justify-content:center" onclick="triggerImport()">${I.arrow}${esc(L("import_backup"))}</button></div></div>
     </div>
@@ -1069,6 +1108,39 @@ function openMember(id){
 function pickColor(c){window._mcolor=c;document.querySelectorAll("#swatches .mcol").forEach(b=>b.style.border="2px solid "+(b.dataset.c===c?"var(--ink)":"transparent"));}
 async function delMember(id){try{await delRec("members",id);toast(L("deleted"));openTeam();}catch(e){toast((e&&e.message)||"Error");}}
 
+function openRecurring(){
+  const rows=state.recurring.length?state.recurring.map(r=>`<div class="lrow" style="cursor:default"><span style="width:34px;height:34px;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;color:${r.kind==='income'?'var(--pos)':'var(--neg)'};flex:0 0 auto">${r.kind==='income'?I.income:I.expenses}</span>
+    <div class="mid"><div class="t">${esc(r.label||catLabel(r.category))}${r.active===false?` <span class="tag">—</span>`:""}</div><div class="s">${money(r.amount)} · ${esc(L("day_of_month"))} ${r.dayOfMonth||1} · ${esc(L("every_month"))}</div></div>
+    ${readOnly?"":`<button class="close" style="width:30px;height:30px" onclick="openRecurringRule('${r.id}')">${I.edit}</button><button class="close danger" style="width:30px;height:30px" onclick="delRecurring('${r.id}')">${I.trash}</button>`}</div>`).join(""):`<div class="empty" style="padding:24px"><div class="eic">${I.clock}</div><p style="margin:0">${esc(L("no_recurring"))}</p></div>`;
+  modalHost().innerHTML=shell(L("recurring"),`<div class="modal-b"><p class="muted" style="margin:2px 0 12px;font-size:12.5px">${esc(L("recurring_sub"))}</p><div class="list" style="padding:2px 0">${rows}</div></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button>${readOnly?"":`<button type="button" class="btn accent" onclick="openRecurringRule()">${I.plus}${esc(L("add_recurring"))}</button>`}</div>`);
+}
+function openRecurringRule(id){
+  const r=id?state.recurring.find(x=>x.id===id):{kind:"expense",dayOfMonth:1,startMonth:ymNow(),active:true,taxRate:state.settings.vatRate};
+  window._recKind=r.kind||"expense";
+  const cats=(window._recKind==="income"?INCOME_CATS:EXPENSE_CATS).map(c=>`<option value="${c}" ${r.category===c?"selected":""}>${esc(catLabel(c))}</option>`).join("");
+  const pOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${r.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
+  modalHost().innerHTML=shell(id?L("edit_recurring"):L("add_recurring"),`<div class="modal-b">
+    <div class="field"><label>${esc(L("type"))}</label><div class="seg-in"><button type="button" id="rk_exp" class="${window._recKind==='expense'?'on':''}" onclick="recKind('expense')">${esc(L("expenses"))}</button><button type="button" id="rk_inc" class="${window._recKind==='income'?'on':''}" onclick="recKind('income')">${esc(L("income"))}</button></div></div>
+    ${field("r_label",L("label_l"),`<input id="r_label" value="${esc(r.label||"")}" placeholder="—">`)}
+    <div class="row2">${field("r_amount",L("amount")+" ("+L("curr")+") *",`<input id="r_amount" type="number" step="0.001" min="0" value="${r.amount!=null?esc(r.amount):""}">`)}${field("r_cat",L("category"),`<select id="r_cat">${cats}</select>`)}</div>
+    <div class="row3">${field("r_day",L("day_of_month"),`<input id="r_day" type="number" min="1" max="28" value="${r.dayOfMonth||1}">`)}${field("r_start",L("starts"),`<input id="r_start" type="month" value="${esc(r.startMonth||ymNow())}">`)}${field("r_vat",L("vat_rate")+" %",`<input id="r_vat" type="number" step="0.1" min="0" value="${r.taxRate!=null?esc(r.taxRate):0}">`)}</div>
+    ${field("r_proj",L("project"),`<select id="r_proj">${pOpts}</select>`)}
+    </div><div class="modal-f"><button type="button" class="btn" onclick="openRecurring()">${esc(L("cancel"))}</button><button type="button" class="btn accent" id="mSubmit">${esc(L("save"))}</button></div>`);
+  document.getElementById("r_amount").focus();
+  document.getElementById("mSubmit").onclick=async()=>{const amount=num("r_amount");if(!(amount>0))return shake("r_amount");
+    const pid=val("r_proj")||null,proj=pid?state.projects.find(x=>x.id===pid):null;
+    const d={kind:window._recKind,label:val("r_label"),amount,category:val("r_cat"),dayOfMonth:num("r_day")||1,startMonth:val("r_start")||ymNow(),taxRate:num("r_vat"),projectId:pid,clientId:proj?proj.clientId||null:null,active:r.active!==false,lastMonth:r.lastMonth||null,updatedAt:new Date().toISOString()};if(!id)d.createdAt=new Date().toISOString();
+    const b=document.getElementById("mSubmit");b.disabled=true;
+    try{await (id?setRec("recurring",id,d):addRec("recurring",d));ranRecurring=false;await generateRecurring();toast(L("saved"));openRecurring();}catch(e){b.disabled=false;if(e&&e.code==="invalid_argument"){readOnly=true;closeModal();render();toast(L("readonly_note"));}else toast((e&&e.message)||"Error");}};
+}
+function recKind(k){window._recKind=k;document.getElementById("rk_exp").classList.toggle("on",k==="expense");document.getElementById("rk_inc").classList.toggle("on",k==="income");const sel=document.getElementById("r_cat");if(sel)sel.innerHTML=(k==="income"?INCOME_CATS:EXPENSE_CATS).map(c=>`<option value="${c}">${esc(catLabel(c))}</option>`).join("");}
+async function delRecurring(id){try{await delRec("recurring",id);toast(L("deleted"));openRecurring();}catch(e){toast((e&&e.message)||"Error");}}
+function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";if(s<86400)return Math.floor(s/3600)+"h";return Math.floor(s/86400)+"d";}
+function openActivity(){
+  const kl={clients:L("client"),projects:L("project"),transactions:L("amount"),tasks:L("nav_tasks"),invoices:L("invoice"),members:L("member"),recurring:L("recurring")};
+  const rows=state.activity.length?state.activity.map(a=>`<div class="lrow" style="cursor:default"><span style="width:8px;height:8px;border-radius:50%;background:${a.action==='act_created'?'var(--pos)':a.action==='act_deleted'?'var(--neg)':'var(--accent)'};flex:0 0 auto"></span><div class="mid"><div class="t" style="font-weight:500;font-size:13px"><b style="font-weight:700">${esc(L(a.action))}</b> ${esc(kl[a.kind]||a.kind)}${a.label?` · <span class="muted">${esc(a.label)}</span>`:""}</div></div><span class="s" style="color:var(--ink-faint);white-space:nowrap">${timeAgo(a.ts)} ${esc(L("ago"))}</span></div>`).join(""):`<div class="empty" style="padding:24px"><p style="margin:0">${esc(L("no_activity_log"))}</p></div>`;
+  modalHost().innerHTML=shell(L("activity_log"),`<div class="modal-b"><div class="list" style="padding:2px 0;max-height:58vh;overflow:auto">${rows}</div></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button></div>`);
+}
 function confirmDel(coll,id){
   modalHost().innerHTML=shell(L("delete"),`<div class="modal-b"><p style="margin:6px 0 4px;font-size:16px;font-weight:600">${esc(L("confirm_del"))}</p><p class="muted" style="margin:0">${esc(L("confirm_del_body"))}</p></div><div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn" id="mSubmit" style="background:var(--neg);border-color:var(--neg);color:#fff">${esc(L("delete"))}</button></div>`);
   document.getElementById("mSubmit").onclick=async()=>{await save(()=>delRec(coll,id),L("deleted"));};
@@ -1119,13 +1191,16 @@ function palItems(){
   const q=palQuery.trim().toLowerCase();
   const qa=[];
   if(!readOnly){
-    qa.push({icon:I.invoices,t:L("new_invoice"),s:L("quick_actions"),run:()=>{closePalette();openInvoice();}});
+    qa.push({icon:I.invoices,t:L("new_invoice"),s:L("quick_actions"),run:()=>{closePalette();openInvoice(null,'invoice');}});
+    qa.push({icon:I.invoices,t:L("new_quote"),s:L("quick_actions"),run:()=>{closePalette();openInvoice(null,'quote');}});
     qa.push({icon:I.tasks,t:L("add_task"),s:L("quick_actions"),run:()=>{closePalette();openTask();}});
     qa.push({icon:I.income,t:L("add_income"),s:L("quick_actions"),run:()=>{closePalette();openTx('income');}});
     qa.push({icon:I.expenses,t:L("add_expense"),s:L("quick_actions"),run:()=>{closePalette();openTx('expense');}});
     qa.push({icon:I.clients,t:L("add_client"),s:L("quick_actions"),run:()=>{closePalette();openClient();}});
     qa.push({icon:I.projects,t:L("add_project"),s:L("quick_actions"),run:()=>{closePalette();openProject();}});
+    qa.push({icon:I.clock,t:L("manage_recurring"),s:L("quick_actions"),run:()=>{closePalette();openRecurring();}});
   }
+  qa.push({icon:I.reports,t:L("activity_log"),s:L("quick_actions"),run:()=>{closePalette();openActivity();}});
   const nav=NAV.map(([k,ic])=>({icon:ic,t:L("nav_"+k),s:L("go_to"),run:()=>{closePalette();go(k);}}));
   const data=[];
   state.clients.forEach(c=>data.push({icon:I.clients,t:c.name,s:L("client"),run:()=>{closePalette();go('clients');}}));
