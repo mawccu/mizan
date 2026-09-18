@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root{color-scheme:light dark;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+  html,body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<title>Mizan Accounts</title>
+<meta name="description" content="Bilingual company accounting: clients, projects, income and expenses with per-project profit, in JOD.">
+<style>
+  :root{
+    --ground:#f4f6fa; --surface:#ffffff; --surface-2:#fafbfd;
+    --ink:#161c2b; --ink-soft:#57607a; --ink-faint:#8a92a8;
+    --line:#e5e8f0; --line-strong:#d3d8e6;
+    --accent:#3452c4; --accent-soft:#eaeefb; --accent-ink:#2740a0;
+    --pos:#118a5b; --pos-soft:#e4f4ec;
+    --neg:#c8384a; --neg-soft:#fbe8ea;
+    --warn:#b7791f; --warn-soft:#fbf1dd;
+    --shadow:0 1px 2px rgba(20,28,43,.05), 0 6px 20px rgba(20,28,43,.05);
+    --shadow-sm:0 1px 2px rgba(20,28,43,.06);
+    --radius:14px; --radius-sm:10px;
+    --font:"IBM Plex Sans Arabic","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --ground:#0e121c; --surface:#161c29; --surface-2:#1b2231;
+      --ink:#eef1f8; --ink-soft:#a4adc4; --ink-faint:#6f7891;
+      --line:#2a3242; --line-strong:#39435a;
+      --accent:#6d87f0; --accent-soft:#212b47; --accent-ink:#adbdfb;
+      --pos:#41c088; --pos-soft:#173226;
+      --neg:#ec6d7c; --neg-soft:#331d22;
+      --warn:#e0a94a; --warn-soft:#332a17;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0e121c; --surface:#161c29; --surface-2:#1b2231;
+    --ink:#eef1f8; --ink-soft:#a4adc4; --ink-faint:#6f7891;
+    --line:#2a3242; --line-strong:#39435a;
+    --accent:#6d87f0; --accent-soft:#212b47; --accent-ink:#adbdfb;
+    --pos:#41c088; --pos-soft:#173226;
+    --neg:#ec6d7c; --neg-soft:#331d22;
+    --warn:#e0a94a; --warn-soft:#332a17;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font);
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:14px}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+  .num{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+
+  /* ---- Layout ---- */
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100%}
+  .side{background:var(--surface);border-inline-end:1px solid var(--line);
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;height:100dvh}
+  .brand{padding:20px 20px 14px;display:flex;align-items:center;gap:11px}
+  .brand-mark{width:38px;height:38px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(150deg,var(--accent),var(--accent-ink));
+    display:grid;place-items:center;color:#fff;box-shadow:var(--shadow-sm)}
+  .brand-mark svg{width:20px;height:20px}
+  .brand-name{font-weight:800;font-size:17px;letter-spacing:-.02em;line-height:1.1}
+  .brand-sub{font-size:11px;color:var(--ink-faint);font-weight:500}
+  .nav{display:flex;flex-direction:column;gap:2px;padding:8px 12px;flex:1;overflow-y:auto}
+  .nav-btn{display:flex;align-items:center;gap:11px;padding:10px 12px;border:none;
+    background:transparent;color:var(--ink-soft);border-radius:var(--radius-sm);
+    font-size:14px;font-weight:600;text-align:start;width:100%;transition:.14s}
+  .nav-btn:hover{background:var(--surface-2);color:var(--ink)}
+  .nav-btn.on{background:var(--accent-soft);color:var(--accent-ink)}
+  .nav-btn svg{width:18px;height:18px;flex:0 0 auto;opacity:.85}
+  .side-foot{padding:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+  .lang-toggle{display:flex;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:9px;padding:3px;gap:2px}
+  .lang-toggle button{flex:1;border:none;background:transparent;padding:6px;border-radius:6px;
+    font-weight:700;font-size:12.5px;color:var(--ink-soft)}
+  .lang-toggle button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+  .who{font-size:11.5px;color:var(--ink-faint);padding:0 4px;display:flex;align-items:center;gap:6px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--pos);flex:0 0 auto}
+  .dot.off{background:var(--warn)}
+
+  /* ---- Main ---- */
+  .main{min-width:0;padding:26px 30px 60px}
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .head h1{font-size:23px}
+  .head p{margin:3px 0 0;color:var(--ink-soft);font-size:13px}
+  .btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);
+    padding:9px 15px;border-radius:10px;font-weight:650;font-size:13.5px;display:inline-flex;
+    align-items:center;gap:7px;transition:.14s;white-space:nowrap}
+  .btn:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .btn svg{width:16px;height:16px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-ink);color:#fff}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--ink-soft);padding:7px 9px}
+  .btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+  .btn.danger:hover{border-color:var(--neg);color:var(--neg)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.sm{padding:6px 10px;font-size:12.5px}
+
+  /* ---- KPI ---- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+  .kpi .lbl{font-size:12px;color:var(--ink-soft);font-weight:600;display:flex;align-items:center;gap:7px}
+  .kpi .val{font-size:24px;font-weight:700;margin-top:9px;letter-spacing:-.02em}
+  .kpi .val small{font-size:13px;color:var(--ink-faint);font-weight:600}
+  .kpi .sub{font-size:11.5px;color:var(--ink-faint);margin-top:3px}
+  .kpi .ic{position:absolute;inset-inline-end:14px;top:14px;width:30px;height:30px;border-radius:9px;
+    display:grid;place-items:center}
+  .kpi .ic svg{width:16px;height:16px}
+  .kpi.pos .val{color:var(--pos)} .kpi.pos .ic{background:var(--pos-soft);color:var(--pos)}
+  .kpi.neg .val{color:var(--neg)} .kpi.neg .ic{background:var(--neg-soft);color:var(--neg)}
+  .kpi.acc .ic{background:var(--accent-soft);color:var(--accent-ink)}
+  .kpi.net .ic{background:var(--accent-soft);color:var(--accent-ink)}
+
+  /* ---- Cards / grid ---- */
+  .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow-sm);overflow:hidden}
+  .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:15px 18px;border-bottom:1px solid var(--line)}
+  .card-h h2{font-size:15px}
+  .card-h .hint{font-size:11.5px;color:var(--ink-faint);font-weight:500}
+  .card-b{padding:6px 6px}
+  .card-b.pad{padding:18px}
+
+  /* ---- Table ---- */
+  .wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:start;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--ink-faint);font-weight:700;padding:10px 14px;white-space:nowrap}
+  td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:var(--surface-2)}
+  td.r,th.r{text-align:end}
+  .money{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+  .money.pos{color:var(--pos)} .money.neg{color:var(--neg)}
+  .muted{color:var(--ink-faint)}
+  .strong{font-weight:700}
+  .rowsub{font-size:11.5px;color:var(--ink-faint)}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;
+    font-size:11.5px;font-weight:700;white-space:nowrap}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.active{background:var(--pos-soft);color:var(--pos)}
+  .pill.completed{background:var(--accent-soft);color:var(--accent-ink)}
+  .pill.on_hold{background:var(--warn-soft);color:var(--warn)}
+  .tag{display:inline-flex;padding:2px 8px;border-radius:7px;font-size:11.5px;font-weight:650;
+    background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line)}
+  .avatar{width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent-ink);
+    display:inline-grid;place-items:center;font-weight:800;font-size:12px;flex:0 0 auto}
+  .cellflex{display:flex;align-items:center;gap:10px}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--ink-faint)}
+  .empty svg{width:34px;height:34px;opacity:.5;margin-bottom:10px}
+  .empty h3{font-size:15px;color:var(--ink-soft);margin-bottom:5px}
+  .empty p{margin:0 0 14px;font-size:13px}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .search{flex:1;min-width:180px;position:relative}
+  .search input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--line-strong);
+    border-radius:10px;background:var(--surface);color:var(--ink)}
+  .search svg{position:absolute;inset-inline-start:11px;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;color:var(--ink-faint)}
+  [dir=rtl] .search input{padding:9px 36px 9px 12px}
+  .seg{display:flex;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden}
+  .seg button{border:none;background:var(--surface);padding:8px 13px;font-weight:650;font-size:13px;
+    color:var(--ink-soft);border-inline-start:1px solid var(--line)}
+  .seg button:first-child{border-inline-start:none}
+  .seg button.on{background:var(--accent-soft);color:var(--accent-ink)}
+
+  /* ---- Chart ---- */
+  .chart{padding:14px 18px 6px}
+  .chart svg{width:100%;height:190px;display:block;overflow:visible}
+  .legend{display:flex;gap:16px;justify-content:center;padding:4px 0 12px;font-size:12px;color:var(--ink-soft)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  /* ---- Modal ---- */
+  .scrim{position:fixed;inset:0;background:rgba(16,20,30,.55);backdrop-filter:blur(3px);
+    display:grid;place-items:center;padding:18px;z-index:50}
+  .modal{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);width:min(520px,100%);
+    max-height:90vh;overflow:auto;border:1px solid var(--line)}
+  .modal-h{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;
+    border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface)}
+  .modal-h h2{font-size:17px}
+  .modal-b{padding:18px 20px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12.5px;font-weight:650;color:var(--ink-soft);margin-bottom:6px}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line-strong);
+    border-radius:10px;background:var(--surface-2);color:var(--ink);transition:.14s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);
+    background:var(--surface);box-shadow:0 0 0 3px var(--accent-soft)}
+  .field textarea{resize:vertical;min-height:64px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .modal-f{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px 18px}
+  .close{border:none;background:var(--surface-2);width:32px;height:32px;border-radius:9px;
+    display:grid;place-items:center;color:var(--ink-soft)}
+  .close:hover{color:var(--ink)}
+
+  .toast{position:fixed;inset-block-end:22px;inset-inline:0;margin-inline:auto;width:max-content;max-width:90%;
+    background:var(--ink);color:var(--ground);padding:11px 18px;border-radius:11px;font-weight:600;
+    font-size:13.5px;box-shadow:var(--shadow);z-index:80;opacity:0;transform:translateY(10px);
+    transition:.25s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  .mobile-top{display:none}
+  .banner{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);
+    border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;margin-bottom:16px;
+    display:flex;gap:8px;align-items:center}
+  .banner svg{width:16px;height:16px;flex:0 0 auto}
+
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr}
+    .side{position:fixed;inset-inline-start:0;top:0;bottom:0;z-index:60;width:250px;
+      transform:translateX(-100%);transition:.22s;height:100dvh}
+    [dir=rtl] .side{transform:translateX(100%)}
+    .side.open{transform:translateX(0)}
+    .scrim.navscrim{z-index:55}
+    .mobile-top{display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line);
+      position:sticky;top:0;z-index:20}
+    .main{padding:18px 16px 60px}
+    .kpis{grid-template-columns:1fr 1fr}
+    .grid2{grid-template-columns:1fr}
+    .head h1{font-size:20px}
+  }
+  @media (max-width:520px){
+    .kpis{grid-template-columns:1fr 1fr;gap:10px}
+    .kpi .val{font-size:20px}
+    .row2{grid-template-columns:1fr}
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+
+<div id="root"></div>
+<div id="modal-host"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================ i18n ============================ */
+const T = {
+  en:{
+    appName:"Mizan", tagline:"Company accounts",
+    nav_dashboard:"Dashboard", nav_clients:"Clients", nav_projects:"Projects",
+    nav_income:"Income", nav_expenses:"Expenses",
+    dashboard:"Dashboard", clients:"Clients", projects:"Projects",
+    income:"Income", expenses:"Expenses",
+    overview_sub:"A live view of money in, money out, and what each project earns.",
+    clients_sub:"Everyone you work with and what they've billed.",
+    projects_sub:"Track budget against what you've received and spent.",
+    income_sub:"Every payment received, by project and client.",
+    expenses_sub:"Everything the company spends, by category.",
+    total_income:"Total income", total_expenses:"Total expenses",
+    net_profit:"Net profit", active_projects:"Active projects",
+    outstanding:"Outstanding", of:"of", collected:"collected",
+    add_client:"Add client", add_project:"Add project",
+    add_income:"Record income", add_expense:"Record expense",
+    new_income:"Record income", new_expense:"Record expense",
+    edit_client:"Edit client", edit_project:"Edit project",
+    edit_income:"Edit income", edit_expense:"Edit expense",
+    monthly:"Income vs expenses", last6:"Last 6 months",
+    recent:"Recent activity", project_profit:"Project profitability",
+    view_all:"View all",
+    name:"Name", company:"Company", phone:"Phone", email:"Email", notes:"Notes",
+    client:"Client", project:"Project", none:"None", no_project:"No project",
+    status:"Status", budget:"Budget", start_date:"Start date",
+    amount:"Amount", date:"Date", category:"Category", description:"Description",
+    received:"Received", spent:"Spent", profit:"Profit", margin:"Margin",
+    projects_count:"Projects", billed:"Billed", type:"Type",
+    st_active:"Active", st_completed:"Completed", st_on_hold:"On hold",
+    all:"All",
+    save:"Save", cancel:"Cancel", delete:"Delete", edit:"Edit", actions:"",
+    confirm_del:"Delete this?", confirm_del_body:"This can't be undone.",
+    search_clients:"Search clients…", search_projects:"Search projects…",
+    search_tx:"Search…",
+    no_clients_h:"No clients yet", no_clients_p:"Add your first client to start tracking work and payments.",
+    no_projects_h:"No projects yet", no_projects_p:"Create a project and link it to a client.",
+    no_income_h:"No income recorded", no_income_p:"Record your first payment received.",
+    no_expenses_h:"No expenses recorded", no_expenses_p:"Log what the company spends.",
+    saved:"Saved", deleted:"Deleted", readonly_note:"You have view-only access — ask an editor to make changes.",
+    connecting:"Connecting to your team database…",
+    local_note:"Not connected to the shared database — changes are saved on this device only.",
+    req:"Required", pick_type:"Type",
+    cat_deposit:"Deposit", cat_payment:"Payment", cat_final:"Final payment", cat_retainer:"Retainer",
+    cat_materials:"Materials", cat_salaries:"Salaries", cat_rent:"Rent",
+    cat_utilities:"Utilities", cat_transport:"Transport", cat_marketing:"Marketing",
+    cat_fees:"Fees", cat_software:"Software", cat_other:"Other",
+    curr:"JD", entries:"entries", total:"Total", this_month:"This month",
+    menu:"Menu",
+  },
+  ar:{
+    appName:"ميزان", tagline:"حسابات الشركة",
+    nav_dashboard:"لوحة التحكم", nav_clients:"العملاء", nav_projects:"المشاريع",
+    nav_income:"الإيرادات", nav_expenses:"المصروفات",
+    dashboard:"لوحة التحكم", clients:"العملاء", projects:"المشاريع",
+    income:"الإيرادات", expenses:"المصروفات",
+    overview_sub:"نظرة حيّة على الوارد والصادر وما يحققه كل مشروع.",
+    clients_sub:"كل من تتعامل معه وما تمّت مطالبته به.",
+    projects_sub:"تابع الميزانية مقابل ما استلمته وما أنفقته.",
+    income_sub:"كل دفعة مستلمة، حسب المشروع والعميل.",
+    expenses_sub:"كل ما تنفقه الشركة، حسب الفئة.",
+    total_income:"إجمالي الإيرادات", total_expenses:"إجمالي المصروفات",
+    net_profit:"صافي الربح", active_projects:"مشاريع نشطة",
+    outstanding:"المتبقّي", of:"من", collected:"محصّل",
+    add_client:"إضافة عميل", add_project:"إضافة مشروع",
+    add_income:"تسجيل إيراد", add_expense:"تسجيل مصروف",
+    new_income:"تسجيل إيراد", new_expense:"تسجيل مصروف",
+    edit_client:"تعديل عميل", edit_project:"تعديل مشروع",
+    edit_income:"تعديل إيراد", edit_expense:"تعديل مصروف",
+    monthly:"الإيرادات مقابل المصروفات", last6:"آخر ٦ أشهر",
+    recent:"أحدث الحركات", project_profit:"ربحية المشاريع",
+    view_all:"عرض الكل",
+    name:"الاسم", company:"الشركة", phone:"الهاتف", email:"البريد الإلكتروني", notes:"ملاحظات",
+    client:"العميل", project:"المشروع", none:"لا يوجد", no_project:"بدون مشروع",
+    status:"الحالة", budget:"الميزانية", start_date:"تاريخ البدء",
+    amount:"المبلغ", date:"التاريخ", category:"الفئة", description:"الوصف",
+    received:"المستلم", spent:"المنفق", profit:"الربح", margin:"الهامش",
+    projects_count:"المشاريع", billed:"المطالَب به", type:"النوع",
+    st_active:"نشط", st_completed:"مكتمل", st_on_hold:"معلّق",
+    all:"الكل",
+    save:"حفظ", cancel:"إلغاء", delete:"حذف", edit:"تعديل", actions:"",
+    confirm_del:"حذف هذا العنصر؟", confirm_del_body:"لا يمكن التراجع عن هذا الإجراء.",
+    search_clients:"ابحث في العملاء…", search_projects:"ابحث في المشاريع…",
+    search_tx:"ابحث…",
+    no_clients_h:"لا يوجد عملاء بعد", no_clients_p:"أضف أول عميل لتبدأ بتتبّع الأعمال والدفعات.",
+    no_projects_h:"لا توجد مشاريع بعد", no_projects_p:"أنشئ مشروعًا واربطه بعميل.",
+    no_income_h:"لا توجد إيرادات مسجّلة", no_income_p:"سجّل أول دفعة مستلمة.",
+    no_expenses_h:"لا توجد مصروفات مسجّلة", no_expenses_p:"سجّل ما تنفقه الشركة.",
+    saved:"تم الحفظ", deleted:"تم الحذف", readonly_note:"صلاحيتك للعرض فقط — اطلب من محرّر إجراء التعديلات.",
+    connecting:"جارٍ الاتصال بقاعدة بيانات فريقك…",
+    local_note:"غير متصل بقاعدة البيانات المشتركة — التغييرات تُحفظ على هذا الجهاز فقط.",
+    req:"مطلوب", pick_type:"النوع",
+    cat_deposit:"دفعة مقدّمة", cat_payment:"دفعة", cat_final:"دفعة نهائية", cat_retainer:"دفعة شهرية",
+    cat_materials:"مواد", cat_salaries:"رواتب", cat_rent:"إيجار",
+    cat_utilities:"فواتير", cat_transport:"نقل", cat_marketing:"تسويق",
+    cat_fees:"رسوم", cat_software:"برمجيات", cat_other:"أخرى",
+    curr:"د.أ", entries:"حركة", total:"الإجمالي", this_month:"هذا الشهر",
+    menu:"القائمة",
+  }
+};
+const INCOME_CATS = ["deposit","payment","final","retainer","other"];
+const EXPENSE_CATS = ["materials","salaries","rent","utilities","transport","marketing","software","fees","other"];
+const STATUSES = ["active","completed","on_hold"];
+
+let lang = "en";
+try{ lang = localStorage.getItem("mizan_lang") || "en"; }catch(e){}
+function L(k){ return (T[lang] && T[lang][k]) || (T.en[k]) || k; }
+function catLabel(c){ return L("cat_"+c) || c; }
+
+/* ============================ State ============================ */
+const state = { clients:[], projects:[], transactions:[] };
+let view = "dashboard";
+let readOnly = false;
+let backend = "loading";       // loading | db | local
+let dbCap = null, userCap = null, meName = "";
+const filters = { clientSearch:"", projSearch:"", incSearch:"", expSearch:"", projStatus:"all" };
+
+/* ============================ Store ============================ */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+async function initStore(){
+  try{ dbCap = await claude.use("db"); }catch(e){ dbCap = null; }
+  try{
+    userCap = await claude.use("user");
+    if(userCap){
+      const canWrite = userCap.can ? userCap.can("data.write") : true;
+      if(canWrite === false) readOnly = true;
+      try{
+        const id = userCap.id ? await userCap.id() : null;
+        if(id && userCap.profiles){ const p = await userCap.profiles([id]); meName = (p[id]&&p[id].name)||""; }
+      }catch(e){}
+    }
+  }catch(e){ userCap = null; }
+
+  if(dbCap){
+    backend = "db";
+    subscribe("clients"); subscribe("projects"); subscribe("transactions");
+    render();
+  }else{
+    backend = "local";
+    loadLocal();
+    render();
+  }
+}
+function subscribe(coll){
+  try{
+    dbCap.collection(coll).onSnapshot(
+      snap=>{ state[coll] = snap.docs.map(d=>({ id:d.id, ...d.data() })); render(); },
+      err=>{ if(err && err.code==="revoked"){ readOnly=true; render(); } }
+    );
+  }catch(e){ /* leave empty */ }
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem("mizan_data");
+    if(raw){ const d = JSON.parse(raw); state.clients=d.clients||[]; state.projects=d.projects||[]; state.transactions=d.transactions||[]; }
+  }catch(e){}
+}
+function saveLocal(){ try{ localStorage.setItem("mizan_data", JSON.stringify(state)); }catch(e){} }
+
+async function addRec(coll, data){
+  if(backend==="db"){ await dbCap.collection(coll).add(data); }
+  else { state[coll].push({ id:uid(), ...data }); saveLocal(); render(); }
+}
+async function setRec(coll, id, data){
+  if(backend==="db"){ await dbCap.collection(coll).doc(id).set(data); }
+  else { const i=state[coll].findIndex(x=>x.id===id); if(i>-1) state[coll][i]={id,...data}; saveLocal(); render(); }
+}
+async function delRec(coll, id){
+  if(backend==="db"){ await dbCap.collection(coll).doc(id).delete(); }
+  else { state[coll]=state[coll].filter(x=>x.id!==id); saveLocal(); render(); }
+}
+
+/* ============================ Helpers ============================ */
+function money(n, sign){
+  n = Number(n)||0;
+  const s = Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:3,maximumFractionDigits:3});
+  const pre = sign && n>0 ? "+" : (sign && n<0 ? "−" : (n<0?"−":""));
+  return `${pre}${s} ${L("curr")}`;
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function initials(name){ const p=String(name||"?").trim().split(/\s+/); return ((p[0]||"?")[0]+(p[1]?p[1][0]:"")).toUpperCase(); }
+function fmtDate(d){ if(!d) return "—"; try{ const dt=new Date(d+"T00:00:00"); return dt.toLocaleDateString(lang==="ar"?"ar-EG":"en-GB",{day:"2-digit",month:"short",year:"numeric"}); }catch(e){ return d; } }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function clientName(id){ const c=state.clients.find(x=>x.id===id); return c?c.name:null; }
+function projName(id){ const p=state.projects.find(x=>x.id===id); return p?p.name:null; }
+
+function projStats(pid){
+  let inc=0, exp=0;
+  for(const t of state.transactions){ if(t.projectId!==pid) continue; if(t.type==="income") inc+=Number(t.amount)||0; else exp+=Number(t.amount)||0; }
+  return { inc, exp, profit:inc-exp };
+}
+function totals(){
+  let inc=0, exp=0;
+  for(const t of state.transactions){ if(t.type==="income") inc+=Number(t.amount)||0; else exp+=Number(t.amount)||0; }
+  return { inc, exp, net:inc-exp };
+}
+
+/* ============================ Icons ============================ */
+const I = {
+  logo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 7l7-3 7 3"/><path d="M5 7l-2.5 6a3 3 0 0 0 5 0L5 7z"/><path d="M19 7l-2.5 6a3 3 0 0 0 5 0L19 7z"/><path d="M7 21h10"/></svg>',
+  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  clients:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  projects:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  income:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
+  expenses:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>',
+  net:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.5-3.5"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>',
+  empty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+};
+
+/* ============================ Render ============================ */
+const NAV = [["dashboard",I.dashboard],["clients",I.clients],["projects",I.projects],["income",I.income],["expenses",I.expenses]];
+
+function render(){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang==="ar" ? "rtl" : "ltr";
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    ${sidebar()}
+    <div class="main">
+      <div class="mobile-top">
+        <button class="close" onclick="toggleNav(true)" aria-label="${esc(L('menu'))}">${I.menu}</button>
+        <div style="display:flex;align-items:center;gap:8px;font-weight:800">
+          <span style="width:26px;height:26px;border-radius:8px;background:linear-gradient(150deg,var(--accent),var(--accent-ink));color:#fff;display:grid;place-items:center">${I.logo}</span>
+          ${esc(L("appName"))}
+        </div>
+        <div style="width:32px"></div>
+      </div>
+      ${viewHead()}
+      ${backend==="loading" ? `<div class="banner">${I.warn}${esc(L("connecting"))}</div>` :
+        backend==="local" ? `<div class="banner">${I.warn}${esc(L("local_note"))}</div>` : ""}
+      ${readOnly ? `<div class="banner">${I.warn}${esc(L("readonly_note"))}</div>` : ""}
+      ${renderView()}
+    </div>`;
+  const app = document.querySelector(".app"); if(app) app.classList.remove("navup");
+  bindInputs();
+}
+
+function sidebar(){
+  return `<aside class="side" id="side">
+    <div class="brand">
+      <div class="brand-mark">${I.logo}</div>
+      <div><div class="brand-name">${esc(L("appName"))}</div><div class="brand-sub">${esc(L("tagline"))}</div></div>
+    </div>
+    <nav class="nav">
+      ${NAV.map(([k,ic])=>`<button class="nav-btn ${view===k?'on':''}" onclick="go('${k}')">${ic}<span>${esc(L("nav_"+k))}</span></button>`).join("")}
+    </nav>
+    <div class="side-foot">
+      <div class="lang-toggle">
+        <button class="${lang==='en'?'on':''}" onclick="setLang('en')">EN</button>
+        <button class="${lang==='ar'?'on':''}" onclick="setLang('ar')">عربي</button>
+      </div>
+      <div class="who"><span class="dot ${backend==='db'?'':'off'}"></span>${backend==='db'? esc(meName||'Team database') : (backend==='local'?'Local only':'…')}</div>
+    </div>
+  </aside>`;
+}
+function viewHead(){
+  const map={ dashboard:["dashboard","overview_sub"],clients:["clients","clients_sub"],projects:["projects","projects_sub"],income:["income","income_sub"],expenses:["expenses","expenses_sub"] };
+  const [t,s]=map[view];
+  let action="";
+  if(!readOnly){
+    if(view==="clients") action=`<button class="btn primary" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`;
+    if(view==="projects") action=`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`;
+    if(view==="income") action=`<button class="btn primary" onclick="openTx('income')">${I.plus}${esc(L("add_income"))}</button>`;
+    if(view==="expenses") action=`<button class="btn primary" onclick="openTx('expense')">${I.plus}${esc(L("add_expense"))}</button>`;
+  }
+  return `<div class="head"><div><h1>${esc(L(t))}</h1><p>${esc(L(s))}</p></div>${action}</div>`;
+}
+function renderView(){
+  if(view==="dashboard") return dashboard();
+  if(view==="clients") return clientsView();
+  if(view==="projects") return projectsView();
+  if(view==="income") return txView("income");
+  if(view==="expenses") return txView("expense");
+  return "";
+}
+
+/* ---------- Dashboard ---------- */
+function dashboard(){
+  const t=totals();
+  const activeCount=state.projects.filter(p=>p.status==="active").length;
+  const budgets=state.projects.reduce((a,p)=>a+(Number(p.budget)||0),0);
+  const collectedPct = budgets>0 ? Math.round(t.inc/budgets*100) : 0;
+  const kpis=`<div class="kpis">
+    <div class="kpi pos"><div class="ic">${I.income}</div><div class="lbl">${esc(L("total_income"))}</div><div class="val">${money(t.inc)}</div><div class="sub">${state.transactions.filter(x=>x.type==='income').length} ${esc(L("entries"))}</div></div>
+    <div class="kpi neg"><div class="ic">${I.expenses}</div><div class="lbl">${esc(L("total_expenses"))}</div><div class="val">${money(t.exp)}</div><div class="sub">${state.transactions.filter(x=>x.type==='expense').length} ${esc(L("entries"))}</div></div>
+    <div class="kpi ${t.net>=0?'net':'neg'}"><div class="ic">${I.net}</div><div class="lbl">${esc(L("net_profit"))}</div><div class="val" style="color:${t.net>=0?'var(--accent-ink)':'var(--neg)'}">${money(t.net,true)}</div><div class="sub">${esc(L("total"))}</div></div>
+    <div class="kpi acc"><div class="ic">${I.projects}</div><div class="lbl">${esc(L("active_projects"))}</div><div class="val">${activeCount}<small> / ${state.projects.length}</small></div><div class="sub">${budgets>0?collectedPct+"% "+esc(L("collected")):"&nbsp;"}</div></div>
+  </div>`;
+
+  const recent=[...state.transactions].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,7);
+  const recentCard=`<div class="card"><div class="card-h"><h2>${esc(L("recent"))}</h2>${state.transactions.length>7?`<button class="btn ghost sm" onclick="go('income')">${esc(L("view_all"))}</button>`:""}</div>
+    <div class="card-b">${recent.length? `<div class="wrap"><table><tbody>
+      ${recent.map(tx=>{const pn=projName(tx.projectId)||clientName(tx.clientId);return `<tr>
+        <td><div class="strong">${esc(catLabel(tx.category))}</div><div class="rowsub">${pn?esc(pn):esc(L("no_project"))} · ${fmtDate(tx.date)}</div></td>
+        <td class="r"><span class="money ${tx.type==='income'?'pos':'neg'}">${tx.type==='income'?'+':'−'}${money(tx.amount).replace('+','')}</span></td>
+      </tr>`;}).join("")}
+    </tbody></table></div>` : emptyMini()}</div></div>`;
+
+  const rows=state.projects.map(p=>({p,...projStats(p.id)})).filter(r=>r.inc||r.exp||Number(r.p.budget))
+    .sort((a,b)=>b.profit-a.profit).slice(0,6);
+  const profitCard=`<div class="card"><div class="card-h"><h2>${esc(L("project_profit"))}</h2><span class="hint">${esc(L("received"))} · ${esc(L("spent"))} · ${esc(L("profit"))}</span></div>
+    <div class="card-b">${rows.length?`<div class="wrap"><table><tbody>
+      ${rows.map(r=>`<tr>
+        <td><div class="strong">${esc(r.p.name)}</div><div class="rowsub">${esc(clientName(r.p.clientId)||L("none"))}</div></td>
+        <td class="r"><span class="money pos">${money(r.inc)}</span></td>
+        <td class="r"><span class="money neg">${money(r.exp)}</span></td>
+        <td class="r"><span class="money ${r.profit>=0?'pos':'neg'}">${money(r.profit,true)}</span></td>
+      </tr>`).join("")}
+    </tbody></table></div>`:emptyMini()}</div></div>`;
+
+  return kpis + chartCard(t) + `<div class="grid2" style="margin-top:16px">${recentCard}${profitCard}</div>`;
+}
+function emptyMini(){ return `<div class="empty" style="padding:28px 12px">${I.empty}<p style="margin:8px 0 0">${esc(L("no_income_p"))}</p></div>`; }
+
+function chartCard(){
+  const months=[]; const now=new Date();
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push({key:d.toISOString().slice(0,7),label:d.toLocaleDateString(lang==="ar"?"ar-EG":"en-US",{month:"short"})}); }
+  const data=months.map(m=>{ let inc=0,exp=0; for(const t of state.transactions){ if(String(t.date).slice(0,7)!==m.key) continue; if(t.type==="income")inc+=Number(t.amount)||0; else exp+=Number(t.amount)||0;} return {...m,inc,exp}; });
+  const max=Math.max(1,...data.map(d=>Math.max(d.inc,d.exp)));
+  const W=600,H=160,pad=8,gap=26,bw=14, groupW=(W-pad*2)/6;
+  let bars="";
+  data.forEach((d,i)=>{
+    const cx=pad+groupW*i+groupW/2;
+    const hi=Math.round(d.inc/max*(H-24)), he=Math.round(d.exp/max*(H-24));
+    bars+=`<rect x="${cx-bw-2}" y="${H-hi-18}" width="${bw}" height="${Math.max(hi,d.inc>0?2:0)}" rx="3" fill="var(--pos)"/>`;
+    bars+=`<rect x="${cx+2}" y="${H-he-18}" width="${bw}" height="${Math.max(he,d.exp>0?2:0)}" rx="3" fill="var(--neg)"/>`;
+    bars+=`<text x="${cx}" y="${H-4}" text-anchor="middle" font-size="11" fill="var(--ink-faint)" font-family="var(--font)">${esc(d.label)}</text>`;
+  });
+  return `<div class="card"><div class="card-h"><h2>${esc(L("monthly"))}</h2><span class="hint">${esc(L("last6"))}</span></div>
+    <div class="chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${bars}</svg></div>
+    <div class="legend"><span><i style="background:var(--pos)"></i>${esc(L("income"))}</span><span><i style="background:var(--neg)"></i>${esc(L("expenses"))}</span></div>
+  </div>`;
+}
+
+/* ---------- Clients ---------- */
+function clientsView(){
+  const q=filters.clientSearch.toLowerCase();
+  let list=state.clients.filter(c=>!q||[c.name,c.company,c.phone,c.email].some(v=>String(v||"").toLowerCase().includes(q)));
+  list=list.sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const toolbar=`<div class="toolbar"><div class="search">${I.search}<input id="clientSearch" placeholder="${esc(L("search_clients"))}" value="${esc(filters.clientSearch)}"></div></div>`;
+  if(!state.clients.length) return toolbar+emptyState("no_clients_h","no_clients_p",readOnly?"":`<button class="btn primary" onclick="openClient()">${I.plus}${esc(L("add_client"))}</button>`);
+  const body=list.map(c=>{
+    const pc=state.projects.filter(p=>p.clientId===c.id).length;
+    let billed=0; for(const t of state.transactions){ if(t.clientId===c.id&&t.type==="income")billed+=Number(t.amount)||0; }
+    return `<tr>
+      <td><div class="cellflex"><span class="avatar">${esc(initials(c.name))}</span><div><div class="strong">${esc(c.name)}</div><div class="rowsub">${esc(c.company||"—")}</div></div></div></td>
+      <td>${c.phone?esc(c.phone):'<span class="muted">—</span>'}${c.email?`<div class="rowsub">${esc(c.email)}</div>`:""}</td>
+      <td class="r"><span class="tag">${pc} ${esc(L("projects_count"))}</span></td>
+      <td class="r"><span class="money pos">${money(billed)}</span></td>
+      <td class="r">${rowActions(()=>`openClient('${c.id}')`,()=>`confirmDel('clients','${c.id}')`)}</td>
+    </tr>`;}).join("");
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr>
+    <th>${esc(L("name"))}</th><th>${esc(L("phone"))}</th><th class="r">${esc(L("projects_count"))}</th><th class="r">${esc(L("billed"))}</th><th class="r"></th>
+  </tr></thead><tbody>${body}</tbody></table></div></div>`;
+}
+
+/* ---------- Projects ---------- */
+function projectsView(){
+  const q=filters.projSearch.toLowerCase();
+  let list=state.projects.filter(p=>filters.projStatus==="all"||p.status===filters.projStatus)
+    .filter(p=>!q||[p.name,clientName(p.clientId)].some(v=>String(v||"").toLowerCase().includes(q)));
+  list=list.sort((a,b)=>String(b.startDate||"").localeCompare(String(a.startDate||"")));
+  const toolbar=`<div class="toolbar">
+    <div class="search">${I.search}<input id="projSearch" placeholder="${esc(L("search_projects"))}" value="${esc(filters.projSearch)}"></div>
+    <div class="seg">
+      <button class="${filters.projStatus==='all'?'on':''}" onclick="setProjStatus('all')">${esc(L("all"))}</button>
+      ${STATUSES.map(s=>`<button class="${filters.projStatus===s?'on':''}" onclick="setProjStatus('${s}')">${esc(L("st_"+s))}</button>`).join("")}
+    </div></div>`;
+  if(!state.projects.length) return toolbar+emptyState("no_projects_h","no_projects_p",readOnly?"":`<button class="btn primary" onclick="openProject()">${I.plus}${esc(L("add_project"))}</button>`);
+  const body=list.map(p=>{
+    const s=projStats(p.id); const budget=Number(p.budget)||0;
+    const pct=budget>0?Math.min(100,Math.round(s.inc/budget*100)):0;
+    const margin=s.inc>0?Math.round(s.profit/s.inc*100):0;
+    return `<tr>
+      <td><div class="strong">${esc(p.name)}</div><div class="rowsub">${esc(clientName(p.clientId)||L("none"))} · ${fmtDate(p.startDate)}</div></td>
+      <td><span class="pill ${p.status||'active'}">${esc(L("st_"+(p.status||"active")))}</span></td>
+      <td class="r"><span class="money">${budget?money(budget):'—'}</span>${budget?`<div class="rowsub">${pct}% ${esc(L("collected"))}</div>`:""}</td>
+      <td class="r"><span class="money pos">${money(s.inc)}</span></td>
+      <td class="r"><span class="money neg">${money(s.exp)}</span></td>
+      <td class="r"><span class="money ${s.profit>=0?'pos':'neg'}">${money(s.profit,true)}</span>${s.inc>0?`<div class="rowsub">${margin}% ${esc(L("margin"))}</div>`:""}</td>
+      <td class="r">${rowActions(()=>`openProject('${p.id}')`,()=>`confirmDel('projects','${p.id}')`)}</td>
+    </tr>`;}).join("");
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr>
+    <th>${esc(L("project"))}</th><th>${esc(L("status"))}</th><th class="r">${esc(L("budget"))}</th>
+    <th class="r">${esc(L("received"))}</th><th class="r">${esc(L("spent"))}</th><th class="r">${esc(L("profit"))}</th><th></th>
+  </tr></thead><tbody>${body}</tbody></table></div></div>`;
+}
+
+/* ---------- Transactions ---------- */
+function txView(type){
+  const isInc=type==="income";
+  const key=isInc?"incSearch":"expSearch"; const q=filters[key].toLowerCase();
+  let list=state.transactions.filter(t=>t.type===type)
+    .filter(t=>!q||[catLabel(t.category),t.description,projName(t.projectId),clientName(t.clientId)].some(v=>String(v||"").toLowerCase().includes(q)));
+  list=list.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const sum=list.reduce((a,t)=>a+(Number(t.amount)||0),0);
+  const toolbar=`<div class="toolbar">
+    <div class="search">${I.search}<input id="${isInc?'incSearch':'expSearch'}" placeholder="${esc(L("search_tx"))}" value="${esc(filters[key])}"></div>
+    <div class="tag" style="padding:8px 12px">${esc(L("total"))}: <span class="money ${isInc?'pos':'neg'}" style="margin-inline-start:6px">${money(sum)}</span></div>
+  </div>`;
+  if(!list.length && !filters[key]) return toolbar+emptyState(isInc?"no_income_h":"no_expenses_h",isInc?"no_income_p":"no_expenses_p",readOnly?"":`<button class="btn primary" onclick="openTx('${type}')">${I.plus}${esc(isInc?L("add_income"):L("add_expense"))}</button>`);
+  const body=list.map(t=>{
+    const pn=projName(t.projectId), cn=clientName(t.clientId);
+    return `<tr>
+      <td class="muted" style="white-space:nowrap">${fmtDate(t.date)}</td>
+      <td><div class="strong">${esc(catLabel(t.category))}</div>${t.description?`<div class="rowsub">${esc(t.description)}</div>`:""}</td>
+      <td>${pn?esc(pn):`<span class="muted">${esc(L("no_project"))}</span>`}${cn&&cn!==pn?`<div class="rowsub">${esc(cn)}</div>`:""}</td>
+      <td class="r"><span class="money ${isInc?'pos':'neg'}">${money(t.amount)}</span></td>
+      <td class="r">${rowActions(()=>`openTx('${type}','${t.id}')`,()=>`confirmDel('transactions','${t.id}')`)}</td>
+    </tr>`;}).join("");
+  return toolbar+`<div class="card"><div class="wrap"><table><thead><tr>
+    <th>${esc(L("date"))}</th><th>${esc(L("category"))}</th><th>${esc(L("project"))}</th><th class="r">${esc(L("amount"))}</th><th></th>
+  </tr></thead><tbody>${body||`<tr><td colspan="5" class="empty" style="padding:24px">${esc(L("search_tx"))}</td></tr>`}</tbody></table></div></div>`;
+}
+
+function rowActions(edit,del){
+  if(readOnly) return "";
+  return `<div style="display:inline-flex;gap:4px;justify-content:flex-end">
+    <button class="close" style="width:30px;height:30px" onclick="${edit()}" title="${esc(L("edit"))}">${I.edit}</button>
+    <button class="close danger" style="width:30px;height:30px" onclick="${del()}" title="${esc(L("delete"))}">${I.trash}</button>
+  </div>`;
+}
+function emptyState(h,p,cta){ return `<div class="card"><div class="empty">${I.empty}<h3>${esc(L(h))}</h3><p>${esc(L(p))}</p>${cta||""}</div></div>`; }
+
+/* ============================ Modals / forms ============================ */
+function modalHost(){ return document.getElementById("modal-host"); }
+function closeModal(){ modalHost().innerHTML=""; }
+function shell(title,bodyHTML,submitLabel){
+  return `<div class="scrim" onclick="if(event.target===this)closeModal()"><div class="modal">
+    <div class="modal-h"><h2>${esc(title)}</h2><button class="close" onclick="closeModal()">${I.x}</button></div>
+    <form id="mform" onsubmit="return false">${bodyHTML}</form>
+  </div></div>`;
+}
+function field(id,label,inputHTML){ return `<div class="field"><label for="${id}">${esc(label)}</label>${inputHTML}</div>`; }
+function foot(submitLabel){ return `<div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn primary" id="mSubmit">${esc(submitLabel)}</button></div>`; }
+
+function openClient(id){
+  const c=id?state.clients.find(x=>x.id===id):{};
+  const body=`<div class="modal-b">
+    ${field("f_name",L("name")+" *",`<input id="f_name" required value="${esc(c.name||"")}">`)}
+    ${field("f_company",L("company"),`<input id="f_company" value="${esc(c.company||"")}">`)}
+    <div class="row2">${field("f_phone",L("phone"),`<input id="f_phone" value="${esc(c.phone||"")}">`)}${field("f_email",L("email"),`<input id="f_email" type="email" value="${esc(c.email||"")}">`)}</div>
+    ${field("f_notes",L("notes"),`<textarea id="f_notes">${esc(c.notes||"")}</textarea>`)}
+  </div>${foot(L("save"))}`;
+  modalHost().innerHTML=shell(id?L("edit_client"):L("add_client"),body);
+  document.getElementById("f_name").focus();
+  document.getElementById("mSubmit").onclick=async()=>{
+    const name=val("f_name"); if(!name){ shake("f_name"); return; }
+    const data={ name, company:val("f_company"), phone:val("f_phone"), email:val("f_email"), notes:val("f_notes"), updatedAt:new Date().toISOString() };
+    if(!id) data.createdAt=new Date().toISOString();
+    await save(()=> id?setRec("clients",id,data):addRec("clients",data));
+  };
+}
+function openProject(id){
+  const p=id?state.projects.find(x=>x.id===id):{status:"active",startDate:todayISO()};
+  const clientOpts=`<option value="">${esc(L("none"))}</option>`+state.clients.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(c=>`<option value="${c.id}" ${p.clientId===c.id?"selected":""}>${esc(c.name)}</option>`).join("");
+  const statusOpts=STATUSES.map(s=>`<option value="${s}" ${p.status===s?"selected":""}>${esc(L("st_"+s))}</option>`).join("");
+  const body=`<div class="modal-b">
+    ${field("f_name",L("name")+" *",`<input id="f_name" required value="${esc(p.name||"")}">`)}
+    ${field("f_client",L("client"),`<select id="f_client">${clientOpts}</select>`)}
+    <div class="row2">${field("f_status",L("status"),`<select id="f_status">${statusOpts}</select>`)}${field("f_budget",L("budget")+" ("+L("curr")+")",`<input id="f_budget" type="number" step="0.001" min="0" value="${p.budget!=null?esc(p.budget):""}">`)}</div>
+    ${field("f_start",L("start_date"),`<input id="f_start" type="date" value="${esc(p.startDate||todayISO())}">`)}
+    ${field("f_notes",L("notes"),`<textarea id="f_notes">${esc(p.notes||"")}</textarea>`)}
+  </div>${foot(L("save"))}`;
+  modalHost().innerHTML=shell(id?L("edit_project"):L("add_project"),body);
+  document.getElementById("f_name").focus();
+  document.getElementById("mSubmit").onclick=async()=>{
+    const name=val("f_name"); if(!name){ shake("f_name"); return; }
+    const data={ name, clientId:val("f_client")||null, status:val("f_status"), budget:num("f_budget"), startDate:val("f_start"), notes:val("f_notes"), updatedAt:new Date().toISOString() };
+    if(!id) data.createdAt=new Date().toISOString();
+    await save(()=> id?setRec("projects",id,data):addRec("projects",data));
+  };
+}
+function openTx(type,id){
+  const isInc=type==="income";
+  const t=id?state.transactions.find(x=>x.id===id):{type,date:todayISO()};
+  const cats=isInc?INCOME_CATS:EXPENSE_CATS;
+  const catOpts=cats.map(c=>`<option value="${c}" ${t.category===c?"selected":""}>${esc(catLabel(c))}</option>`).join("");
+  const projOpts=`<option value="">${esc(L("no_project"))}</option>`+state.projects.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(p=>`<option value="${p.id}" ${t.projectId===p.id?"selected":""}>${esc(p.name)}</option>`).join("");
+  const body=`<div class="modal-b">
+    <div class="row2">${field("f_amount",L("amount")+" ("+L("curr")+") *",`<input id="f_amount" type="number" step="0.001" min="0" required value="${t.amount!=null?esc(t.amount):""}">`)}${field("f_date",L("date"),`<input id="f_date" type="date" value="${esc(t.date||todayISO())}">`)}</div>
+    <div class="row2">${field("f_cat",L("category"),`<select id="f_cat">${catOpts}</select>`)}${field("f_proj",L("project"),`<select id="f_proj">${projOpts}</select>`)}</div>
+    ${field("f_desc",L("description"),`<input id="f_desc" value="${esc(t.description||"")}">`)}
+  </div>${foot(L("save"))}`;
+  modalHost().innerHTML=shell(id?(isInc?L("edit_income"):L("edit_expense")):(isInc?L("new_income"):L("new_expense")),body);
+  const amt=document.getElementById("f_amount"); amt.focus();
+  document.getElementById("mSubmit").onclick=async()=>{
+    const amount=num("f_amount"); if(!(amount>0)){ shake("f_amount"); return; }
+    const pid=val("f_proj")||null; const proj=pid?state.projects.find(x=>x.id===pid):null;
+    const data={ type, amount, date:val("f_date")||todayISO(), category:val("f_cat"), projectId:pid, clientId:proj?proj.clientId||null:null, description:val("f_desc"), updatedAt:new Date().toISOString() };
+    if(!id) data.createdAt=new Date().toISOString();
+    await save(()=> id?setRec("transactions",id,data):addRec("transactions",data));
+  };
+}
+function confirmDel(coll,id){
+  const body=`<div class="modal-b"><p style="margin:0 0 4px;font-size:15px;font-weight:650">${esc(L("confirm_del"))}</p><p class="muted" style="margin:0">${esc(L("confirm_del_body"))}</p></div>
+    <div class="modal-f"><button type="button" class="btn" onclick="closeModal()">${esc(L("cancel"))}</button><button type="button" class="btn primary" id="mSubmit" style="background:var(--neg);border-color:var(--neg)">${esc(L("delete"))}</button></div>`;
+  modalHost().innerHTML=shell(L("delete"),body);
+  document.getElementById("mSubmit").onclick=async()=>{ await save(()=>delRec(coll,id),L("deleted")); };
+}
+async function save(fn,msg){
+  const btn=document.getElementById("mSubmit"); if(btn){ btn.disabled=true; btn.style.opacity=".6"; }
+  try{ await fn(); closeModal(); toast(msg||L("saved")); }
+  catch(e){
+    if(btn){ btn.disabled=false; btn.style.opacity="1"; }
+    if(e && e.code==="invalid_argument"){ readOnly=true; closeModal(); render(); toast(L("readonly_note")); }
+    else toast((e&&e.message)||"Error");
+  }
+}
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():""; }
+function num(id){ const el=document.getElementById(id); const n=el?parseFloat(el.value):NaN; return isNaN(n)?0:n; }
+function shake(id){ const el=document.getElementById(id); if(!el)return; el.style.borderColor="var(--neg)"; el.focus(); }
+
+/* ============================ Events ============================ */
+function go(k){ view=k; toggleNav(false); render(); window.scrollTo(0,0); }
+function setLang(l){ lang=l; try{localStorage.setItem("mizan_lang",l);}catch(e){} closeModal(); render(); }
+function setProjStatus(s){ filters.projStatus=s; render(); }
+function toggleNav(open){ const s=document.getElementById("side"); if(!s)return;
+  if(open){ s.classList.add("open"); const sc=document.createElement("div"); sc.className="scrim navscrim"; sc.id="navscrim"; sc.onclick=()=>toggleNav(false); document.body.appendChild(sc); }
+  else{ s.classList.remove("open"); const sc=document.getElementById("navscrim"); if(sc)sc.remove(); } }
+function bindInputs(){
+  [["clientSearch","clientSearch"],["projSearch","projSearch"],["incSearch","incSearch"],["expSearch","expSearch"]].forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el){ el.oninput=()=>{ filters[key]=el.value; const pos=el.selectionStart; renderKeepFocus(id,pos); }; }
+  });
+}
+function renderKeepFocus(id,pos){
+  render();
+  const el=document.getElementById(id);
+  if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} }
+}
+let toastTimer;
+function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2400); }
+
+/* ============================ Boot ============================ */
+render();
+initStore();
+</script>
+</body>
+</html>
